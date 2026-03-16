@@ -1,0 +1,235 @@
+{% extends 'base.html' %}{% block title %}Sign In — SmartSLA Kerala{% endblock %}
+{% block extra_css %}<style>
+
+/* make the base .mc wrapper flex so auth-bg can fill it */
+.mc { display: flex; flex-direction: column; }
+
+.auth-bg {
+  flex: 1;
+  width: 100%;
+  background: #f8fafc;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(37,99,235,.06), transparent),
+    radial-gradient(ellipse 40% 40% at 100% 100%, rgba(124,58,237,.04), transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  box-sizing: border-box;
+}
+
+.auth-shell {
+  width: 100%;
+  max-width: 920px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 48px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.06);
+}
+
+/* ── Left: brand side ── */
+.auth-left {
+  background: linear-gradient(160deg, #1e40af 0%, #2563eb 45%, #4f46e5 100%);
+  padding: 3rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.auth-left::before {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(255,255,255,.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.auth-left::after {
+  content: '';
+  position: absolute;
+  width: 260px; height: 260px; border-radius: 50%;
+  background: rgba(255,255,255,.05);
+  bottom: -80px; right: -60px;
+  pointer-events: none;
+}
+.al-title {
+  font-size: 1.7rem; font-weight: 900; color: #fff;
+  letter-spacing: -.05em; line-height: 1.1;
+  margin-bottom: .65rem;
+  position: relative; z-index: 1;
+}
+.al-sub {
+  font-size: .82rem; color: rgba(255,255,255,.72);
+  line-height: 1.75; margin-bottom: 2.25rem;
+  position: relative; z-index: 1;
+}
+.al-feats { display: flex; flex-direction: column; gap: .65rem; position: relative; z-index: 1; }
+.al-feat {
+  display: flex; align-items: center; gap: .6rem;
+  font-size: .78rem; color: rgba(255,255,255,.88);
+}
+.al-feat-dot {
+  width: 24px; height: 24px; border-radius: 7px; flex-shrink: 0;
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.18);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .65rem; color: rgba(255,255,255,.9);
+}
+
+/* ── Right: form side ── */
+.auth-right {
+  background: #fff;
+  padding: 2.75rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.auth-right-title {
+  font-size: 1.3rem; font-weight: 800;
+  color: var(--g900); letter-spacing: -.04em;
+  margin-bottom: .2rem;
+}
+.auth-right-sub {
+  font-size: .8rem; color: var(--g400);
+  margin-bottom: 1.75rem;
+}
+
+/* form fields */
+.auth-field { margin-bottom: 1rem; }
+.auth-field label {
+  display: block; font-size: .72rem; font-weight: 700;
+  color: var(--g700); margin-bottom: .35rem; letter-spacing: .01em;
+}
+.auth-input-wrap {
+  position: relative;
+}
+.auth-input-wrap i {
+  position: absolute; left: .75rem; top: 50%; transform: translateY(-50%);
+  color: var(--g400); font-size: .82rem; pointer-events: none;
+}
+.auth-input {
+  width: 100%; box-sizing: border-box;
+  border: 1.5px solid var(--bdr); border-radius: 9px;
+  padding: .65rem .75rem .65rem 2.25rem;
+  font-size: .84rem; color: var(--g900);
+  font-family: var(--font);
+  background: var(--g50);
+  transition: border-color .15s, box-shadow .15s, background .15s;
+  outline: none;
+}
+.auth-input:focus {
+  border-color: var(--pri); background: #fff;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+.auth-input::placeholder { color: var(--g400); }
+
+.auth-submit {
+  width: 100%; padding: .7rem;
+  background: var(--pri); color: #fff;
+  border: none; border-radius: 9px; cursor: pointer;
+  font-size: .86rem; font-weight: 700; font-family: var(--font);
+  display: flex; align-items: center; justify-content: center; gap: .4rem;
+  transition: background .15s, transform .15s, box-shadow .15s;
+  box-shadow: 0 2px 10px rgba(37,99,235,.25);
+  margin-top: 1.25rem; margin-bottom: 1.1rem;
+}
+.auth-submit:hover { background: var(--pri-h); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37,99,235,.35); }
+
+.auth-divider { height: 1px; background: var(--g100); margin: .6rem 0 .9rem; }
+.auth-switch { font-size: .76rem; color: var(--g500); text-align: center; }
+.auth-switch a { color: var(--pri); font-weight: 700; text-decoration: none; }
+.auth-switch a:hover { text-decoration: underline; }
+
+/* demo creds */
+.demo-box {
+  margin-top: 1.5rem;
+  border: 1px solid var(--bdr); border-radius: 10px; overflow: hidden;
+  background: var(--g50);
+}
+.demo-box-hd {
+  padding: .45rem .8rem; border-bottom: 1px solid var(--bdr);
+  font-size: .65rem; font-weight: 700; color: var(--g600);
+  display: flex; align-items: center; gap: .3rem;
+  background: var(--g50);
+}
+.demo-row {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .35rem .8rem; border-bottom: 1px solid var(--g100);
+}
+.demo-row:last-child { border-bottom: none; }
+.drole {
+  font-size: .55rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; padding: .1rem .38rem; border-radius: 4px;
+  min-width: 44px; text-align: center;
+}
+.drole-a { background: #fee2e2; color: #991b1b; }
+.drole-o { background: #dbeafe; color: #1e40af; }
+.drole-c { background: #dcfce7; color: #166534; }
+.demail { font-family: var(--mono); font-size: .67rem; color: var(--g600); flex: 1; }
+.dpwd   { font-family: var(--mono); font-size: .63rem; color: var(--g400); }
+
+/* responsive */
+@media (max-width: 680px) {
+  .auth-shell { grid-template-columns: 1fr; border-radius: 16px; }
+  .auth-left  { display: none; }
+  .auth-right { padding: 2rem 1.5rem; }
+}
+</style>{% endblock %}
+
+{% block content %}
+<div class="auth-bg">
+  <div class="auth-shell a1">
+
+    <!-- LEFT: brand -->
+    <div class="auth-left">
+      <div class="al-title">SmartSLA<br>Kerala</div>
+      <p class="al-sub">AI-powered grievance resolution. Every complaint scored, routed, and tracked automatically.</p>
+      <div class="al-feats">
+        {% for icon, label in [
+          ('bi-robot',        'ML risk prediction on every complaint'),
+          ('bi-bell-fill',    'Auto-escalation when SLA is breached'),
+          ('bi-speedometer2', 'Real-time dashboards for all roles'),
+          ('bi-shield-check', 'Full audit trail & accountability'),
+        ] %}
+        <div class="al-feat">
+          <div class="al-feat-dot"><i class="bi {{ icon }}"></i></div>
+          {{ label }}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- RIGHT: form -->
+    <div class="auth-right">
+      <div class="auth-right-title">Welcome back</div>
+      <div class="auth-right-sub">Sign in to your SmartSLA portal</div>
+
+      <form method="POST" action="{{ url_for('login') }}">
+        <div class="auth-field">
+          <label>Email address</label>
+          <div class="auth-input-wrap">
+            <i class="bi bi-envelope"></i>
+            <input type="email" name="email" class="auth-input" placeholder="you@example.com" required autofocus/>
+          </div>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <div class="auth-input-wrap">
+            <i class="bi bi-lock"></i>
+            <input type="password" name="password" class="auth-input" placeholder="Your password" required/>
+          </div>
+        </div>
+        <button type="submit" class="auth-submit">
+          <i class="bi bi-box-arrow-in-right"></i> Sign In
+        </button>
+      </form>
+
+      <div class="auth-divider"></div>
+      <div class="auth-switch">No account? <a href="{{ url_for('register') }}">Create one →</a></div>
+
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

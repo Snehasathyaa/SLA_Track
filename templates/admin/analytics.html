@@ -1,0 +1,358 @@
+{% extends 'base.html' %}{% block title %}ML Analytics — SmartSLA Kerala{% endblock %}
+{% block extra_css %}<style>
+
+/* ══════════════════════════════════════
+   ANALYTICS PAGE
+══════════════════════════════════════ */
+
+/* ── Hero banner ── */
+.analytics-hero {
+  background: #fff;
+  border-bottom: 1px solid var(--bdr);
+  padding: 2.5rem 0 0;
+  margin-top: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.analytics-hero::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 50% 80% at 100% 50%, rgba(37,99,235,.04), transparent),
+    radial-gradient(ellipse 30% 60% at 0% 50%, rgba(124,58,237,.03), transparent);
+}
+.analytics-hero-inner {
+  max-width: 1280px; margin: 0 auto; padding: 0 2rem;
+  position: relative; z-index: 1;
+}
+.analytics-hero-top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.75rem;
+}
+.analytics-eyebrow {
+  font-size: .64rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--pri); margin-bottom: .3rem;
+  display: flex; align-items: center; gap: .4rem;
+}
+.analytics-eyebrow::before {
+  content: ''; width: 16px; height: 2px; background: var(--pri); border-radius: 2px;
+}
+.analytics-title { font-size: 1.6rem; font-weight: 900; color: var(--g900); letter-spacing: -.04em; line-height: 1.1; }
+.analytics-sub { font-size: .82rem; color: var(--g500); margin-top: .35rem; }
+
+/* ── Metrics strip ── */
+.metrics-strip-wrap {
+  max-width: 1280px; margin: 0 auto; padding: 0 2rem;
+}
+.metrics-strip {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  border-top: 1px solid var(--bdr);
+  border-left: 1px solid var(--bdr);
+  border-radius: 10px 10px 0 0;
+  overflow: hidden;
+}
+.metric-cell {
+  padding: 1.1rem 1.25rem;
+  border-right: 1px solid var(--bdr);
+  border-bottom: 1px solid var(--bdr);
+  position: relative;
+  background: #fff;
+  transition: background .15s;
+}
+.metric-cell:hover { background: var(--g50); }
+.metric-cell-top {
+  width: 100%; height: 3px; border-radius: 0 0 2px 2px;
+  position: absolute; top: 0; left: 0; right: 0;
+}
+.metric-val {
+  font-size: 1.4rem; font-weight: 800; letter-spacing: -.04em;
+  line-height: 1; margin-bottom: .2rem;
+}
+.metric-lbl {
+  font-size: .6rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .09em; color: var(--g400);
+}
+.metric-badge {
+  display: inline-block; font-size: .55rem; font-weight: 700;
+  padding: .08rem .35rem; border-radius: 3px; margin-top: .35rem;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+
+/* ══════════════════════════════════════
+   GRAPHS SECTION
+══════════════════════════════════════ */
+.graphs-section {
+  max-width: 1280px; margin: 0 auto; padding: 2rem;
+}
+.graphs-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.25rem; flex-wrap: wrap; gap: .75rem;
+}
+.graphs-title-group { }
+.graphs-title { font-size: 1rem; font-weight: 800; color: var(--g900); letter-spacing: -.02em; }
+.graphs-sub { font-size: .76rem; color: var(--g500); margin-top: .1rem; }
+.graphs-count-badge {
+  display: inline-flex; align-items: center; gap: .3rem;
+  background: var(--pri-l); color: var(--pri); border: 1px solid #bfdbfe;
+  border-radius: 20px; padding: .2rem .65rem; font-size: .7rem; font-weight: 700;
+}
+
+/* Category filter tabs */
+.filter-tabs {
+  display: flex; gap: .35rem; flex-wrap: wrap; margin-bottom: 1.25rem;
+}
+.ftab {
+  padding: .28rem .75rem; border-radius: 20px; font-size: .7rem; font-weight: 600;
+  border: 1px solid var(--bdr); background: #fff; color: var(--g600);
+  cursor: pointer; transition: all .15s;
+}
+.ftab:hover { background: var(--g50); border-color: var(--g300); }
+.ftab.active { background: var(--pri); color: #fff; border-color: var(--pri); }
+
+/* Graphs grid */
+.gg {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .85rem;
+}
+.gc {
+  background: #fff; border: 1px solid var(--bdr); border-radius: var(--rl);
+  overflow: hidden; cursor: pointer; transition: all .22s;
+  box-shadow: var(--sh-xs); display: flex; flex-direction: column;
+}
+.gc:hover { transform: translateY(-4px); box-shadow: var(--sh-md); border-color: var(--g200); }
+.gc-thumb {
+  position: relative; overflow: hidden;
+  background: var(--g50);
+}
+.gc-thumb img {
+  width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block;
+  transition: transform .3s ease;
+}
+.gc:hover .gc-thumb img { transform: scale(1.03); }
+.gc-thumb-overlay {
+  position: absolute; inset: 0; background: rgba(37,99,235,.0);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.gc:hover .gc-thumb-overlay { background: rgba(37,99,235,.08); }
+.gc-zoom-icon {
+  width: 36px; height: 36px; border-radius: 50%; background: #fff;
+  box-shadow: var(--sh); display: flex; align-items: center; justify-content: center;
+  font-size: .8rem; color: var(--pri);
+  opacity: 0; transform: scale(.7); transition: all .2s;
+}
+.gc:hover .gc-zoom-icon { opacity: 1; transform: scale(1); }
+.gc-foot {
+  padding: .75rem 1rem; border-top: 1px solid var(--g100);
+  display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+  flex: 1;
+}
+.gc-name { font-size: .78rem; font-weight: 600; color: var(--g800); }
+.gc-chip {
+  font-size: .56rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .05em; padding: .1rem .45rem; border-radius: 4px;
+  background: var(--g100); color: var(--g500); white-space: nowrap;
+}
+
+/* Empty state */
+.empty-graphs {
+  text-align: center; padding: 4rem 2rem;
+  background: #fff; border: 1px solid var(--bdr); border-radius: var(--rl);
+}
+.empty-graphs-icon {
+  width: 60px; height: 60px; border-radius: 50%;
+  background: var(--pri-l); color: var(--pri);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; margin: 0 auto 1rem;
+}
+
+/* ── Lightbox ── */
+#lb {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(15,23,42,.92); backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 2rem; opacity: 0; pointer-events: none; transition: opacity .25s;
+}
+#lb.open { opacity: 1; pointer-events: all; }
+#lb-img {
+  max-width: 92%; max-height: 88vh; border-radius: 12px;
+  box-shadow: 0 40px 80px rgba(0,0,0,.6);
+  transform: scale(.94) translateY(8px); transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+#lb.open #lb-img { transform: scale(1) translateY(0); }
+#lb-x {
+  position: absolute; top: 1.25rem; right: 1.25rem;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+  color: #fff; font-size: 1.1rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+#lb-x:hover { background: rgba(255,255,255,.25); }
+#lb-caption {
+  position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+  background: rgba(255,255,255,.1); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.15); border-radius: 20px;
+  padding: .35rem 1rem; font-size: .76rem; color: rgba(255,255,255,.85);
+  font-weight: 500; white-space: nowrap;
+}
+
+/* ── Responsive ── */
+@media(max-width: 1024px) { .metrics-strip { grid-template-columns: repeat(3, 1fr); } }
+@media(max-width: 768px)  { .gg { grid-template-columns: repeat(2, 1fr); } .metrics-strip { grid-template-columns: repeat(2, 1fr); } }
+@media(max-width: 480px)  { .gg { grid-template-columns: 1fr; } .metrics-strip { grid-template-columns: repeat(2, 1fr); } }
+</style>{% endblock %}
+
+{% block content %}
+
+<!-- ══════════ HERO / HEADER ══════════ -->
+<div class="analytics-hero a1">
+  <div class="analytics-hero-inner">
+    <div class="analytics-hero-top">
+      <div>
+        <div class="analytics-eyebrow">Machine Learning</div>
+        <div class="analytics-title">Model Analytics</div>
+        <div class="analytics-sub">Training results, evaluation metrics &amp; feature analysis</div>
+      </div>
+      <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline btn-sm" style="margin-top:.25rem">
+        <i class="bi bi-arrow-left"></i> Dashboard
+      </a>
+    </div>
+  </div>
+
+  <!-- Metrics strip — constrained with side padding -->
+  <div class="metrics-strip-wrap">
+    <div class="metrics-strip a2">
+    {% for val, lbl, color, badge_txt, badge_bg, badge_color in [
+      ('80%',          'Accuracy',         '#2563eb', 'classification', '#eff6ff',  '#1d4ed8'),
+      ('0.82',         'F1 Score',         '#16a34a', 'weighted avg',   '#f0fdf4',  '#15803d'),
+      ('0.88',         'AUC-ROC',          '#7c3aed', 'binary',         '#f5f3ff',  '#6d28d9'),
+      ('Random Forest','Best Model',       '#d97706', 'ensemble',       '#fffbeb',  '#b45309'),
+      ('3,000',        'Training Records', '#0891b2', 'stratified',     '#ecfeff',  '#0e7490'),
+      ('11',           'Feature Count',    '#dc2626', 'selected',       '#fef2f2',  '#b91c1c'),
+    ] %}
+    <div class="metric-cell">
+      <div class="metric-cell-top" style="background:{{ color }}"></div>
+      <div class="metric-val" style="color:{{ color }}">{{ val }}</div>
+      <div class="metric-lbl">{{ lbl }}</div>
+      <div class="metric-badge" style="background:{{ badge_bg }};color:{{ badge_color }}">{{ badge_txt }}</div>
+    </div>
+    {% endfor %}
+  </div><!-- /.metrics-strip -->
+  </div><!-- /.metrics-strip-wrap -->
+</div>
+
+<!-- ══════════ GRAPHS ══════════ -->
+<div class="graphs-section">
+
+  {% if graphs %}
+  {% set labels = {
+    'eda_analysis':'EDA Analysis','heatmap':'SLA Heatmap','trends':'Monthly Trends',
+    'learning_curves':'Learning Curves','confusion_matrix':'Confusion Matrix',
+    'roc_curves':'ROC Curves','model_comparison':'Model Comparison',
+    'feature_importance':'Feature Importance','cv_scores':'Cross-Validation',
+    'regression_analysis':'Regression Analysis'
+  } %}
+  {% set chips = {
+    'eda_analysis':'exploratory','heatmap':'correlation','trends':'time-series',
+    'learning_curves':'training','confusion_matrix':'eval','roc_curves':'eval',
+    'model_comparison':'benchmark','feature_importance':'explainability',
+    'cv_scores':'validation','regression_analysis':'regression'
+  } %}
+  {% set chip_colors = {
+    'exploratory': '#dbeafe:#1d4ed8',
+    'correlation':  '#f5f3ff:#6d28d9',
+    'time-series':  '#fef9c3:#92400e',
+    'training':     '#ecfeff:#0e7490',
+    'eval':         '#fef2f2:#b91c1c',
+    'benchmark':    '#f0fdf4:#15803d',
+    'explainability':'#fff7ed:#c2410c',
+    'validation':   '#eff6ff:#1d4ed8',
+    'regression':   '#fdf4ff:#7e22ce',
+  } %}
+
+  <div class="graphs-header a3">
+    <div class="graphs-title-group">
+      <div class="graphs-title">Evaluation Graphs</div>
+      <div class="graphs-sub">Click any graph to enlarge · All charts generated from training run</div>
+    </div>
+    <div class="graphs-count-badge">
+      <i class="bi bi-images"></i> {{ graphs|length }} visualizations
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="filter-tabs a3" id="filterTabs">
+    <button class="ftab active" data-cat="all">All</button>
+    <button class="ftab" data-cat="exploratory">Exploratory</button>
+    <button class="ftab" data-cat="eval">Evaluation</button>
+    <button class="ftab" data-cat="training">Training</button>
+    <button class="ftab" data-cat="benchmark">Benchmark</button>
+    <button class="ftab" data-cat="explainability">Explainability</button>
+  </div>
+
+  <div class="gg a3" id="graphGrid">
+    {% for g in graphs %}
+    {% set gn = g.replace('.png','') %}
+    {% set chip = chips.get(gn, 'analysis') %}
+    {% set clrs = chip_colors.get(chip, '#f1f5f9:#475569').split(':') %}
+    <div class="gc" onclick="openLB(this, '{{ labels.get(gn, gn) }}')" data-cat="{{ chip }}">
+      <div class="gc-thumb">
+        <img src="{{ url_for('static', filename='graphs/'+g) }}" alt="{{ labels.get(gn,gn) }}" loading="lazy"/>
+        <div class="gc-thumb-overlay">
+          <div class="gc-zoom-icon"><i class="bi bi-zoom-in"></i></div>
+        </div>
+      </div>
+      <div class="gc-foot">
+        <span class="gc-name">{{ labels.get(gn, gn) }}</span>
+        <span class="gc-chip" style="background:{{ clrs[0] }};color:{{ clrs[1] }}">{{ chip }}</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="empty-graphs a3">
+    <div class="empty-graphs-icon"><i class="bi bi-bar-chart-line"></i></div>
+    <div style="font-size:.95rem;font-weight:700;color:var(--g800);margin-bottom:.4rem">No ML graphs found</div>
+    <div style="font-size:.82rem;color:var(--g500);margin-bottom:1rem">Generate them by running the training script</div>
+    <code style="font-family:var(--mono);background:var(--g100);padding:.3rem .75rem;border-radius:6px;font-size:.8rem;color:var(--pri)">python train_model.py</code>
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- Lightbox -->
+<div id="lb">
+  <button id="lb-x" onclick="closeLB()">×</button>
+  <img id="lb-img" src="" alt=""/>
+  <div id="lb-caption"></div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}<script>
+// Lightbox
+function openLB(card, caption) {
+  document.getElementById('lb-img').src = card.querySelector('img').src;
+  document.getElementById('lb-caption').textContent = caption || '';
+  document.getElementById('lb').classList.add('open');
+}
+function closeLB() { document.getElementById('lb').classList.remove('open'); }
+document.getElementById('lb').addEventListener('click', function(e) { if(e.target===this) closeLB(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeLB(); });
+
+// Filter tabs
+document.getElementById('filterTabs').addEventListener('click', function(e) {
+  const btn = e.target.closest('.ftab');
+  if (!btn) return;
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const cat = btn.dataset.cat;
+  document.querySelectorAll('.gc').forEach(card => {
+    const show = cat === 'all' || card.dataset.cat === cat;
+    card.style.display = show ? '' : 'none';
+  });
+});
+</script>{% endblock %}

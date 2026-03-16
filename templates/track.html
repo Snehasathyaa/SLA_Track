@@ -1,0 +1,474 @@
+{% extends 'base.html' %}{% block title %}Track Complaint — SmartSLA Kerala{% endblock %}
+{% block extra_css %}<style>
+
+/* ══════════════════════════════════════
+   TRACK PAGE LAYOUT
+══════════════════════════════════════ */
+.track-page {
+  min-height: calc(100vh - 140px);
+  background: var(--g50);
+}
+
+/* ── Search Hero ── */
+.track-hero {
+  background: #fff;
+  border-bottom: 1px solid var(--bdr);
+  padding: 3rem 1.5rem 2.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.track-hero::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 60% at 50% -10%, rgba(37,99,235,.05), transparent),
+    radial-gradient(ellipse 30% 40% at 90% 80%,  rgba(124,58,237,.03), transparent);
+}
+.track-hero::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(37,99,235,.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+  mask-image: radial-gradient(ellipse 70% 100% at 50% 0%, black 30%, transparent 100%);
+}
+.track-hero-inner {
+  position: relative; z-index: 2;
+  max-width: 600px; margin: 0 auto;
+}
+.track-kicker {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: var(--pri-l); border: 1px solid #bfdbfe; border-radius: 6px;
+  padding: .25rem .7rem; font-size: .64rem; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase; color: var(--pri);
+  margin-bottom: 1rem;
+}
+.track-hero h1 {
+  font-size: clamp(1.6rem, 3.5vw, 2.2rem); font-weight: 900;
+  letter-spacing: -.04em; line-height: 1.1;
+  color: var(--g900); margin-bottom: .5rem;
+}
+.track-hero p {
+  font-size: .88rem; color: var(--g500); margin-bottom: 1.75rem;
+}
+
+/* Search bar */
+.search-bar {
+  display: flex; gap: .5rem;
+  background: #fff; border: 2px solid var(--bdr);
+  border-radius: 12px; padding: .4rem .4rem .4rem .9rem;
+  box-shadow: var(--sh-sm);
+  transition: border-color .2s, box-shadow .2s;
+}
+.search-bar:focus-within {
+  border-color: var(--pri);
+  box-shadow: 0 0 0 4px rgba(37,99,235,.08), var(--sh-sm);
+}
+.search-bar input {
+  flex: 1; border: none; outline: none;
+  font-family: var(--mono); font-size: .88rem; font-weight: 500;
+  color: var(--g900); background: transparent; min-width: 0;
+  letter-spacing: .02em;
+}
+.search-bar input::placeholder { color: var(--g400); font-weight: 400; font-family: var(--font); }
+.search-bar button {
+  background: var(--pri); color: #fff; border: none; cursor: pointer;
+  border-radius: 8px; padding: .6rem 1.35rem;
+  font-size: .84rem; font-weight: 700; font-family: var(--font);
+  display: flex; align-items: center; gap: .35rem;
+  transition: background .15s, transform .15s;
+  white-space: nowrap;
+}
+.search-bar button:hover { background: var(--pri-h); transform: translateY(-1px); }
+.search-hint {
+  margin-top: .75rem; font-size: .72rem; color: var(--g400);
+}
+.search-hint code {
+  font-family: var(--mono); background: var(--g100);
+  padding: .05rem .35rem; border-radius: 4px; color: var(--pri); font-size: .72rem;
+}
+
+/* ══════════════════════════════════════
+   RESULT AREA
+══════════════════════════════════════ */
+.track-body {
+  max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem 3rem;
+}
+
+/* Empty / not-found states */
+.track-state {
+  background: #fff; border: 1px solid var(--bdr); border-radius: var(--rl);
+  padding: 3.5rem 2rem; text-align: center;
+  box-shadow: var(--sh-xs);
+}
+.track-state-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; margin: 0 auto 1.1rem;
+}
+.track-state h3 { font-size: 1rem; font-weight: 700; color: var(--g900); margin-bottom: .35rem; }
+.track-state p  { font-size: .82rem; color: var(--g500); }
+
+/* ── Result Card ── */
+.result-card {
+  background: #fff; border: 1px solid var(--bdr); border-radius: var(--rl);
+  box-shadow: var(--sh-sm); overflow: hidden;
+}
+
+/* Result header */
+.result-header {
+  padding: 1.4rem 1.5rem;
+  border-bottom: 1px solid var(--bdr);
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap;
+  background: var(--g50);
+}
+.result-id {
+  font-family: var(--mono); font-size: .72rem; font-weight: 700;
+  color: var(--pri); letter-spacing: .04em; margin-bottom: .2rem;
+  display: flex; align-items: center; gap: .4rem;
+}
+.result-title { font-size: 1.05rem; font-weight: 800; color: var(--g900); letter-spacing: -.02em; }
+.result-subtitle { font-size: .78rem; color: var(--g500); margin-top: .15rem; }
+.result-badges { display: flex; gap: .35rem; flex-wrap: wrap; align-items: flex-start; padding-top: .15rem; }
+
+/* Status timeline */
+.timeline {
+  padding: 1.5rem 1.5rem;
+  border-bottom: 1px solid var(--bdr);
+}
+.timeline-label {
+  font-size: .62rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .09em; color: var(--g400); margin-bottom: 1rem;
+}
+.timeline-steps {
+  display: flex; align-items: center; gap: 0;
+  position: relative;
+}
+.ts {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  position: relative; z-index: 1;
+}
+.ts-dot {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem; font-weight: 700; border: 2px solid;
+  margin-bottom: .45rem; position: relative; z-index: 2;
+  transition: all .2s;
+}
+.ts-dot.done  { background: var(--ok);  border-color: var(--ok);  color: #fff; }
+.ts-dot.active { background: var(--pri); border-color: var(--pri); color: #fff; box-shadow: 0 0 0 4px rgba(37,99,235,.15); }
+.ts-dot.warn  { background: var(--err); border-color: var(--err); color: #fff; box-shadow: 0 0 0 4px rgba(220,38,38,.12); }
+.ts-dot.idle  { background: #fff; border-color: var(--g200); color: var(--g400); }
+.ts-name { font-size: .65rem; font-weight: 600; color: var(--g500); text-align: center; white-space: nowrap; }
+.ts-name.active { color: var(--pri); font-weight: 700; }
+.ts-name.done   { color: var(--ok);  font-weight: 700; }
+.ts-name.warn   { color: var(--err); font-weight: 700; }
+/* connector line */
+.ts-line {
+  height: 2px; flex: 1; position: relative; top: -23px;
+  background: var(--g200); margin: 0 -2px; z-index: 0;
+}
+.ts-line.done { background: var(--ok); }
+.ts-line.partial { background: linear-gradient(90deg, var(--ok), var(--g200)); }
+
+/* Metrics row */
+.metrics-row {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-bottom: 1px solid var(--bdr);
+}
+.metric-box {
+  padding: 1.1rem 1.2rem;
+  border-right: 1px solid var(--bdr);
+  position: relative;
+}
+.metric-box:last-child { border-right: none; }
+.metric-box-lbl {
+  font-size: .6rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--g400); margin-bottom: .4rem;
+}
+.metric-box-val {
+  font-size: 1.1rem; font-weight: 800; color: var(--g900);
+  letter-spacing: -.03em; line-height: 1;
+}
+.metric-box-sub { font-size: .68rem; color: var(--g500); margin-top: .2rem; }
+
+/* Progress bars */
+.prog-pair { display: flex; flex-direction: column; gap: .65rem; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--bdr); }
+.prog-row { }
+.prog-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .35rem; }
+.prog-lbl  { font-size: .7rem; font-weight: 600; color: var(--g600); }
+.prog-val  { font-family: var(--mono); font-size: .72rem; font-weight: 700; }
+.prog-track { height: 8px; background: var(--g100); border-radius: 6px; overflow: hidden; }
+.prog-fill  { height: 100%; border-radius: 6px; transition: width 1s ease; }
+
+/* Details table */
+.detail-table { padding: 1.25rem 1.5rem; }
+.det-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: .55rem 0; border-bottom: 1px solid var(--g100);
+}
+.det-row:last-child { border-bottom: none; }
+.det-lbl { font-size: .7rem; font-weight: 600; color: var(--g400); text-transform: uppercase; letter-spacing: .06em; }
+.det-val { font-size: .8rem; color: var(--g800); font-weight: 500; text-align: right; }
+
+/* Alert banner */
+.result-alert {
+  margin: 1.25rem 1.5rem;
+  padding: .85rem 1rem; border-radius: 8px;
+  font-size: .78rem; font-weight: 500;
+  display: flex; align-items: flex-start; gap: .55rem; line-height: 1.5;
+}
+.result-alert i { font-size: .9rem; flex-shrink: 0; margin-top: .05rem; }
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+@media(max-width: 640px) {
+  .metrics-row { grid-template-columns: repeat(2, 1fr); }
+  .metric-box:nth-child(2) { border-right: none; }
+  .metric-box:nth-child(3) { border-top: 1px solid var(--bdr); }
+  .metric-box:nth-child(4) { border-top: 1px solid var(--bdr); }
+  .ts-name { font-size: .58rem; }
+  .ts-dot  { width: 26px; height: 26px; font-size: .62rem; }
+  .track-body { padding: 1.5rem 1rem 2.5rem; }
+}
+</style>{% endblock %}
+
+{% block content %}
+<div class="track-page">
+
+  <!-- ══ SEARCH HERO ══ -->
+  <div class="track-hero">
+    <div class="track-hero-inner a1">
+      <div class="track-kicker">
+        <i class="bi bi-shield-check"></i> Public Tracker — No Login Required
+      </div>
+      <h1>Track Your Complaint</h1>
+      <p>Enter your complaint ID to see real-time status, AI risk score, and SLA progress</p>
+
+      <form method="POST" action="{{ url_for('track') }}">
+        <div class="search-bar">
+          <i class="bi bi-search" style="color:var(--g400);font-size:.9rem;flex-shrink:0;align-self:center"></i>
+          <input
+            type="text"
+            name="complaint_id"
+            placeholder="Enter complaint ID, e.g. KL2024-00001"
+            value="{{ request.form.complaint_id if request.form.complaint_id else '' }}"
+            autocomplete="off"
+            spellcheck="false"
+            required
+          />
+          <button type="submit"><i class="bi bi-arrow-right"></i> Track</button>
+        </div>
+      </form>
+      <div class="search-hint">
+        You receive a unique ID like <code>KL2024-00001</code> when you file a complaint
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ RESULT AREA ══ -->
+  <div class="track-body">
+
+    {% if complaint %}
+    <!-- ── FOUND ── -->
+    {% set is_resolved = complaint.status in ('Resolved', 'Closed') %}
+    {% set is_escalated = complaint.status == 'Escalated' or complaint.escalated %}
+    {% set is_progress  = complaint.status == 'In Progress' %}
+
+    <div class="result-card a2">
+
+      <!-- Header -->
+      <div class="result-header">
+        <div>
+          <div class="result-id">
+            <i class="bi bi-hash"></i>{{ complaint.complaint_id }}
+          </div>
+          <div class="result-title">{{ complaint.category }}</div>
+          <div class="result-subtitle">{{ complaint.district }} · Priority: {{ complaint.priority }}</div>
+        </div>
+        <div class="result-badges">
+          <span class="badge status-{{ complaint.status.replace(' ','') }}">{{ complaint.status }}</span>
+          <span class="badge badge-{{ complaint.sla_risk_label }}">{{ complaint.sla_risk_label }} Risk</span>
+          {% if complaint.sla_violated %}<span class="badge" style="background:#fef2f2;color:#b91c1c;border-color:#fca5a5"><i class="bi bi-exclamation-triangle-fill"></i> SLA Breached</span>{% endif %}
+        </div>
+      </div>
+
+      <!-- Status Timeline -->
+      <div class="timeline">
+        <div class="timeline-label">Status Progress</div>
+        <div class="timeline-steps">
+          {% set s = complaint.status %}
+          <!-- Step 1: Submitted -->
+          <div class="ts">
+            <div class="ts-dot done"><i class="bi bi-check-lg"></i></div>
+            <div class="ts-name done">Submitted</div>
+          </div>
+          <div class="ts-line done"></div>
+          <!-- Step 2: In Progress -->
+          <div class="ts">
+            {% if s in ('In Progress','Resolved','Closed','Escalated') %}
+              <div class="ts-dot {% if s == 'In Progress' %}active{% else %}done{% endif %}">
+                {% if s == 'In Progress' %}<i class="bi bi-arrow-repeat"></i>{% else %}<i class="bi bi-check-lg"></i>{% endif %}
+              </div>
+              <div class="ts-name {% if s == 'In Progress' %}active{% else %}done{% endif %}">In Progress</div>
+            {% else %}
+              <div class="ts-dot idle">2</div>
+              <div class="ts-name">In Progress</div>
+            {% endif %}
+          </div>
+          <div class="ts-line {% if s in ('Resolved','Closed','Escalated') %}done{% elif s == 'In Progress' %}partial{% endif %}"></div>
+          <!-- Step 3: Escalated (conditional) or Resolved -->
+          {% if is_escalated %}
+          <div class="ts">
+            <div class="ts-dot warn"><i class="bi bi-arrow-up"></i></div>
+            <div class="ts-name warn">Escalated</div>
+          </div>
+          <div class="ts-line {% if is_resolved %}done{% endif %}"></div>
+          {% endif %}
+          <!-- Step 4: Resolved -->
+          <div class="ts">
+            {% if is_resolved %}
+              <div class="ts-dot done"><i class="bi bi-check-circle-fill"></i></div>
+              <div class="ts-name done">Resolved</div>
+            {% else %}
+              <div class="ts-dot idle">{{ '4' if is_escalated else '3' }}</div>
+              <div class="ts-name">Resolved</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 metric boxes -->
+      <div class="metrics-row">
+        <div class="metric-box">
+          <div class="metric-box-lbl">AI Risk Score</div>
+          <div class="metric-box-val" style="color:{%if complaint.sla_risk_score>=75%}var(--err){%elif complaint.sla_risk_score>=50%}var(--warn){%else%}var(--ok){%endif%}">
+            {{ complaint.sla_risk_score }}%
+          </div>
+          <div class="metric-box-sub">{{ complaint.sla_risk_label }} risk level</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-box-lbl">Days Pending</div>
+          <div class="metric-box-val">{{ complaint.days_pending }}</div>
+          <div class="metric-box-sub">of {{ complaint.sla_threshold }} day SLA</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-box-lbl">Predicted Days</div>
+          <div class="metric-box-val">{{ complaint.predicted_days }}</div>
+          <div class="metric-box-sub">ML estimate</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-box-lbl">SLA Status</div>
+          <div class="metric-box-val" style="color:{% if is_resolved %}var(--ok){% elif complaint.sla_violated %}var(--err){% else %}var(--pri){% endif%};font-size:.9rem">
+            {% if is_resolved %}Complete{% elif complaint.sla_violated %}Overdue{% else %}{{ complaint.days_remaining }}d left{% endif %}
+          </div>
+          <div class="metric-box-sub">{% if is_resolved %}resolved in time{% elif complaint.sla_violated %}breached threshold{% else %}within deadline{% endif %}</div>
+        </div>
+      </div>
+
+      <!-- Progress bars -->
+      <div class="prog-pair">
+        <div class="prog-row">
+          <div class="prog-head">
+            <span class="prog-lbl"><i class="bi bi-robot" style="color:var(--pri)"></i> &nbsp;AI Violation Risk</span>
+            <span class="prog-val" style="color:{%if complaint.sla_risk_score>=75%}var(--err){%elif complaint.sla_risk_score>=50%}var(--warn){%else%}var(--ok){%endif%}">{{ complaint.sla_risk_score }}%</span>
+          </div>
+          <div class="prog-track">
+            <div class="prog-fill" style="width:{{ complaint.sla_risk_score }}%;background:{%if complaint.sla_risk_score>=75%}var(--err){%elif complaint.sla_risk_score>=50%}var(--warn){%else%}var(--ok){%endif%}"></div>
+          </div>
+        </div>
+        <div class="prog-row">
+          <div class="prog-head">
+            <span class="prog-lbl"><i class="bi bi-clock" style="color:var(--pri)"></i> &nbsp;SLA Time Elapsed</span>
+            <span class="prog-val" style="color:{%if complaint.sla_violated%}var(--err){%elif complaint.progress_pct>75%}var(--warn){%else%}var(--pri){%endif%}">{{ [complaint.progress_pct,100]|min|int }}%</span>
+          </div>
+          <div class="prog-track">
+            <div class="prog-fill" style="width:{{ [complaint.progress_pct,100]|min }}%;background:{%if complaint.sla_violated%}var(--err){%elif complaint.progress_pct>75%}var(--warn){%else%}var(--pri){%endif%}"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Details -->
+      <div class="detail-table">
+        {% for label, val in [
+          ('Department',        complaint.department),
+          ('Submitted On',      complaint.submitted_at.strftime('%d %b %Y, %I:%M %p') if complaint.submitted_at else 'N/A'),
+          ('Predicted Resolution', complaint.predicted_days|string + ' days'),
+          ('SLA Threshold',     complaint.sla_threshold|string + ' days'),
+          ('Days Pending',      complaint.days_pending|string + ' days'),
+        ] %}
+        <div class="det-row">
+          <span class="det-lbl">{{ label }}</span>
+          <span class="det-val">{{ val }}</span>
+        </div>
+        {% endfor %}
+        {% if complaint.escalated %}
+        <div class="det-row">
+          <span class="det-lbl">Escalated At</span>
+          <div style="text-align:right">
+            <span class="badge badge-Critical" style="font-size:.6rem">Auto-Escalated</span>
+            <div style="font-size:.68rem;color:var(--g400);margin-top:.2rem">{{ complaint.escalated_at.strftime('%d %b %Y, %H:%M') if complaint.escalated_at else 'N/A' }}</div>
+          </div>
+        </div>
+        {% endif %}
+        {% if is_resolved and complaint.resolved_at %}
+        <div class="det-row">
+          <span class="det-lbl">Resolved On</span>
+          <span class="det-val" style="color:var(--ok);font-weight:600">{{ complaint.resolved_at.strftime('%d %b %Y') }}</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Alert banner -->
+      {% if complaint.status == 'Pending' %}
+      <div class="result-alert" style="background:var(--pri-l);border:1px solid #93c5fd;color:#1e40af;margin-top:0">
+        <i class="bi bi-info-circle-fill"></i>
+        <span>Your complaint has been received and is awaiting assignment to an official.</span>
+      </div>
+      {% elif complaint.sla_violated and not is_resolved %}
+      <div class="result-alert" style="background:var(--err-l);border:1px solid #fca5a5;color:#991b1b;margin-top:0">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>SLA deadline has been exceeded. This complaint has been auto-escalated to senior officials for urgent resolution.</span>
+      </div>
+      {% elif is_resolved %}
+      <div class="result-alert" style="background:var(--ok-l);border:1px solid #86efac;color:#166534;margin-top:0">
+        <i class="bi bi-check-circle-fill"></i>
+        <span>Your complaint has been resolved successfully. Thank you for using SmartSLA Kerala.</span>
+      </div>
+      {% elif is_progress %}
+      <div class="result-alert" style="background:var(--warn-l);border:1px solid #fcd34d;color:#92400e;margin-top:0">
+        <i class="bi bi-arrow-repeat"></i>
+        <span>Your complaint is actively being worked on. You will be notified upon resolution.</span>
+      </div>
+      {% endif %}
+
+    </div><!-- /.result-card -->
+
+    {% elif request.method == 'POST' %}
+    <!-- ── NOT FOUND ── -->
+    <div class="track-state a2">
+      <div class="track-state-icon" style="background:var(--err-l);color:var(--err)">
+        <i class="bi bi-file-earmark-x"></i>
+      </div>
+      <h3>Complaint Not Found</h3>
+      <p>No record matches <strong style="font-family:var(--mono);color:var(--pri)">{{ request.form.complaint_id }}</strong>.<br>Double-check the ID and try again.</p>
+    </div>
+
+    {% else %}
+    <!-- ── DEFAULT STATE ── -->
+    <div class="track-state a2">
+      <div class="track-state-icon" style="background:var(--pri-l);color:var(--pri)">
+        <i class="bi bi-shield-check"></i>
+      </div>
+      <h3>Enter your Complaint ID above</h3>
+      <p>You'll receive a unique ID like <code style="font-family:var(--mono);background:var(--g100);padding:.1rem .4rem;border-radius:4px;color:var(--pri);font-size:.8rem">KL2024-00001</code><br>when you file a complaint through SmartSLA Kerala.</p>
+      <div style="margin-top:1.5rem;display:flex;gap:.65rem;justify-content:center;flex-wrap:wrap">
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm"><i class="bi bi-person-plus"></i> Register</a>
+        <a href="{{ url_for('submit_complaint') if session.user_id else url_for('register') }}" class="btn btn-outline btn-sm"><i class="bi bi-plus-circle"></i> File a Complaint</a>
+      </div>
+    </div>
+    {% endif %}
+
+  </div><!-- /.track-body -->
+</div><!-- /.track-page -->
+{% endblock %}

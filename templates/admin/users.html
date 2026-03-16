@@ -1,0 +1,179 @@
+{% extends 'base.html' %}{% block title %}User Management — SmartSLA{% endblock %}
+{% block extra_css %}<style>
+/* ── Avatar ── */
+.uav { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:.82rem; font-weight:800; flex-shrink:0; }
+.uav-admin   { background:#fee2e2; color:#991b1b; }
+.uav-official{ background:#dbeafe; color:#1e40af; }
+.uav-citizen { background:#dcfce7; color:#166534; }
+
+/* ── Role badge ── */
+.rb { font-size:.56rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; padding:.1rem .38rem; border-radius:5px; line-height:1.4; }
+.rb-admin   { background:#fee2e2; color:#991b1b; }
+.rb-official{ background:#dbeafe; color:#1e40af; }
+.rb-citizen { background:#dcfce7; color:#166534; }
+
+/* ── Case count chip ── */
+.case-chip { display:inline-flex; align-items:center; gap:.25rem; padding:.18rem .5rem; border-radius:6px; font-size:.68rem; font-weight:600; background:var(--g100); color:var(--g600); }
+
+/* ── Filter bar ── */
+.filter-row { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+.filter-row .form-input,
+.filter-row .form-select { height:34px; font-size:.76rem; padding:.3rem .65rem; }
+
+/* ── Role select in table ── */
+.role-sel { height:28px; padding:.1rem .4rem; font-size:.68rem; border-radius:6px; border:1px solid var(--bdr); background:#fff; color:var(--g700); cursor:pointer; }
+.role-sel:focus { outline:none; border-color:var(--pri); }
+
+/* ── Table name cell ── */
+.u-name  { font-weight:600; font-size:.82rem; color:var(--g800); }
+.u-exp   { font-size:.64rem; color:var(--g400); margin-top:.08rem; }
+.u-email { font-family:var(--mono); font-size:.7rem; color:var(--g500); }
+</style>{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+
+  <!-- ── Header ── -->
+  <div class="page-header a1">
+    <div>
+      <div class="section-label" style="color:var(--pri)">Administration</div>
+      <div class="page-title">User Management</div>
+      <div class="page-subtitle">{{ users|length }} registered users across all roles</div>
+    </div>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline btn-sm"><i class="bi bi-arrow-left"></i>Dashboard</a>
+  </div>
+
+  <!-- ── Role KPIs ── -->
+  {% set n_admins   = users|selectattr('role','equalto','admin')   |list|length %}
+  {% set n_officials= users|selectattr('role','equalto','official')|list|length %}
+  {% set n_citizens = users|selectattr('role','equalto','citizen') |list|length %}
+  <div class="grid-3 a2" style="margin-bottom:1.75rem">
+    <div class="kpi kpi-top kpi-red">
+      <div class="kpi-ic kpi-ic-red"><i class="bi bi-shield-lock-fill"></i></div>
+      <div class="kpi-n" data-cu="{{ n_admins }}">{{ n_admins }}</div>
+      <div class="kpi-l">Administrators</div>
+    </div>
+    <div class="kpi kpi-top kpi-blue">
+      <div class="kpi-ic kpi-ic-blue"><i class="bi bi-briefcase-fill"></i></div>
+      <div class="kpi-n" data-cu="{{ n_officials }}">{{ n_officials }}</div>
+      <div class="kpi-l">Officials</div>
+    </div>
+    <div class="kpi kpi-top kpi-green">
+      <div class="kpi-ic kpi-ic-green"><i class="bi bi-people-fill"></i></div>
+      <div class="kpi-n" data-cu="{{ n_citizens }}">{{ n_citizens }}</div>
+      <div class="kpi-l">Citizens</div>
+    </div>
+  </div>
+
+  <!-- ── User Table Card ── -->
+  <div class="card a3">
+    <!-- Card header with search + filter -->
+    <div class="card-hd" style="flex-wrap:wrap;gap:.6rem">
+      <span class="card-ht"><i class="bi bi-people" style="color:var(--pri)"></i>All Users</span>
+      <div class="filter-row">
+        <div class="input-group" style="min-width:200px">
+          <i class="bi bi-search input-group-icon"></i>
+          <input type="text" id="uSrch" class="form-input" placeholder="Search name, email, district…"/>
+        </div>
+        <select id="rFilt" class="form-select" style="width:130px">
+          <option value="">All Roles</option>
+          <option value="admin">Admin</option>
+          <option value="official">Official</option>
+          <option value="citizen">Citizen</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div style="overflow-x:auto">
+      <table class="table" id="uTbl">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>District</th>
+            <th>Department</th>
+            <th>Cases</th>
+            <th>Joined</th>
+            <th>Change Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr data-role="{{ u['role'] }}" data-search="{{ u['name']|lower }} {{ u['email']|lower }} {{ (u['district'] or '')|lower }}">
+
+            <!-- User name + avatar -->
+            <td>
+              <div style="display:flex;align-items:center;gap:.6rem">
+                <div class="uav uav-{{ u['role'] }}">{{ u['name'][:1].upper() }}</div>
+                <div>
+                  <div class="u-name">{{ u['name'] }}</div>
+                  {% if u['experience_years'] %}<div class="u-exp">{{ u['experience_years'] }}yr exp</div>{% endif %}
+                </div>
+              </div>
+            </td>
+
+            <td><span class="u-email">{{ u['email'] }}</span></td>
+
+            <td><span class="rb rb-{{ u['role'] }}">{{ u['role'] }}</span></td>
+
+            <td style="font-size:.78rem;color:var(--g600)">{{ u['district'] or '—' }}</td>
+
+            <td style="font-size:.78rem;color:var(--g600);max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ u['department'] or '—' }}</td>
+
+            <td>
+              <span class="case-chip"><i class="bi bi-folder2"></i>{{ user_stats.get(u['id'], 0) }}</span>
+            </td>
+
+            <td style="font-size:.7rem;color:var(--g400);white-space:nowrap">
+              {{ u['created_at'][:10] if u['created_at'] else '—' }}
+            </td>
+
+            <!-- Role change -->
+            <td>
+              {% if u['id'] != session.user_id %}
+              <form method="POST" action="{{ url_for('toggle_user_role', uid=u['id']) }}" style="display:inline">
+                <select name="role" class="role-sel" onchange="this.form.submit()">
+                  {% for r in ['citizen','official','admin'] %}
+                  <option value="{{ r }}" {{ 'selected' if u['role']==r }}>{{ r|capitalize }}</option>
+                  {% endfor %}
+                </select>
+              </form>
+              {% else %}
+              <span style="font-size:.68rem;color:var(--g400);font-style:italic">You</span>
+              {% endif %}
+            </td>
+
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Table footer -->
+    <div style="padding:.6rem 1.1rem;border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
+      <span id="uCount" style="font-size:.72rem;color:var(--g400)">{{ users|length }} users</span>
+      <span style="font-size:.68rem;color:var(--g400)">Role changes apply immediately</span>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}<script>
+function filterUsers() {
+  var q = document.getElementById('uSrch').value.toLowerCase();
+  var r = document.getElementById('rFilt').value;
+  var rows = document.querySelectorAll('#uTbl tbody tr');
+  var visible = 0;
+  rows.forEach(function(row) {
+    var match = (!q || (row.dataset.search||'').includes(q)) && (!r || row.dataset.role === r);
+    row.style.display = match ? '' : 'none';
+    if (match) visible++;
+  });
+  document.getElementById('uCount').textContent = visible + ' user' + (visible !== 1 ? 's' : '');
+}
+document.getElementById('uSrch').addEventListener('input', filterUsers);
+document.getElementById('rFilt').addEventListener('change', filterUsers);
+</script>{% endblock %}

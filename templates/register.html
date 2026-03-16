@@ -1,0 +1,254 @@
+{% extends 'base.html' %}{% block title %}Create Account — SmartSLA Kerala{% endblock %}
+{% block extra_css %}<style>
+
+/* make the base .mc wrapper flex so auth-bg can fill it */
+.mc { display: flex; flex-direction: column; }
+
+.auth-bg {
+  flex: 1;
+  width: 100%;
+  background: #f8fafc;
+  background-image:
+    radial-gradient(ellipse 55% 50% at 50% 0%, rgba(22,163,74,.05), transparent),
+    radial-gradient(ellipse 40% 35% at 0% 100%, rgba(37,99,235,.04), transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  box-sizing: border-box;
+}
+
+.auth-shell {
+  width: 100%;
+  max-width: 940px;
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 48px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.06);
+}
+
+/* ── Left: brand ── */
+.auth-left {
+  background: linear-gradient(160deg, #14532d 0%, #16a34a 50%, #059669 100%);
+  padding: 3rem 2.5rem;
+  display: flex; flex-direction: column; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.auth-left::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(255,255,255,.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.auth-left::after {
+  content: ''; position: absolute;
+  width: 240px; height: 240px; border-radius: 50%;
+  background: rgba(255,255,255,.06);
+  top: -60px; right: -50px; pointer-events: none;
+}
+.al-title {
+  font-size: 1.7rem; font-weight: 900; color: #fff;
+  letter-spacing: -.05em; line-height: 1.1;
+  margin-bottom: .6rem; position: relative; z-index: 1;
+}
+.al-sub {
+  font-size: .8rem; color: rgba(255,255,255,.72);
+  line-height: 1.75; margin-bottom: 2rem;
+  position: relative; z-index: 1;
+}
+.al-steps { display: flex; flex-direction: column; gap: .85rem; position: relative; z-index: 1; }
+.al-step { display: flex; align-items: flex-start; gap: .65rem; }
+.al-step-num {
+  width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .62rem; font-weight: 800; color: #fff; margin-top: .05rem;
+}
+.al-step-text { font-size: .78rem; color: rgba(255,255,255,.88); line-height: 1.55; }
+
+/* ── Right: form ── */
+.auth-right {
+  background: #fff;
+  padding: 2.5rem 2.5rem;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.auth-right-title {
+  font-size: 1.3rem; font-weight: 800;
+  color: var(--g900); letter-spacing: -.04em; margin-bottom: .2rem;
+}
+.auth-right-sub { font-size: .8rem; color: var(--g400); margin-bottom: 1.5rem; }
+
+/* form fields */
+.auth-field { margin-bottom: .9rem; }
+.auth-field label {
+  display: block; font-size: .72rem; font-weight: 700;
+  color: var(--g700); margin-bottom: .3rem;
+}
+.auth-input-wrap { position: relative; }
+.auth-input-wrap i {
+  position: absolute; left: .75rem; top: 50%; transform: translateY(-50%);
+  color: var(--g400); font-size: .82rem; pointer-events: none;
+}
+.auth-input {
+  width: 100%; box-sizing: border-box;
+  border: 1.5px solid var(--bdr); border-radius: 9px;
+  padding: .62rem .75rem .62rem 2.2rem;
+  font-size: .84rem; color: var(--g900);
+  font-family: var(--font); background: var(--g50);
+  transition: border-color .15s, box-shadow .15s, background .15s; outline: none;
+}
+.auth-input:focus {
+  border-color: #16a34a; background: #fff;
+  box-shadow: 0 0 0 3px rgba(22,163,74,.1);
+}
+.auth-input::placeholder { color: var(--g400); }
+.auth-select {
+  width: 100%; box-sizing: border-box;
+  border: 1.5px solid var(--bdr); border-radius: 9px;
+  padding: .62rem .75rem;
+  font-size: .84rem; color: var(--g900);
+  font-family: var(--font); background: var(--g50);
+  transition: border-color .15s; outline: none; cursor: pointer;
+}
+.auth-select:focus { border-color: #16a34a; background: #fff; box-shadow: 0 0 0 3px rgba(22,163,74,.1); }
+
+.auth-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+
+.auth-submit {
+  width: 100%; padding: .7rem;
+  background: #16a34a; color: #fff;
+  border: none; border-radius: 9px; cursor: pointer;
+  font-size: .86rem; font-weight: 700; font-family: var(--font);
+  display: flex; align-items: center; justify-content: center; gap: .4rem;
+  transition: background .15s, transform .15s, box-shadow .15s;
+  box-shadow: 0 2px 10px rgba(22,163,74,.28);
+  margin-top: 1.1rem; margin-bottom: .9rem;
+}
+.auth-submit:hover { background: #15803d; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(22,163,74,.38); }
+
+.auth-divider { height: 1px; background: var(--g100); margin: .4rem 0 .75rem; }
+.auth-switch { font-size: .76rem; color: var(--g500); text-align: center; }
+.auth-switch a { color: var(--pri); font-weight: 700; text-decoration: none; }
+.auth-switch a:hover { text-decoration: underline; }
+
+@media (max-width: 680px) {
+  .auth-shell { grid-template-columns: 1fr; border-radius: 16px; }
+  .auth-left  { display: none; }
+  .auth-right { padding: 2rem 1.5rem; }
+  .auth-row   { grid-template-columns: 1fr; gap: 0; }
+}
+</style>{% endblock %}
+
+{% block content %}
+<div class="auth-bg">
+  <div class="auth-shell a1">
+
+    <!-- LEFT: brand -->
+    <div class="auth-left">
+      <div class="al-title">Join SmartSLA<br>Kerala</div>
+      <p class="al-sub">File grievances with confidence. Track every step. Get real answers, fast.</p>
+      <div class="al-steps">
+        {% for n, t in [
+          ('01', 'Create your free account in under a minute'),
+          ('02', 'File complaints — AI scores risk instantly'),
+          ('03', 'Track real-time progress with your unique ID'),
+          ('04', 'Get notified when your case is resolved'),
+        ] %}
+        <div class="al-step">
+          <div class="al-step-num">{{ n }}</div>
+          <div class="al-step-text">{{ t }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- RIGHT: form -->
+    <div class="auth-right">
+      <div class="auth-right-title">Create account</div>
+      <div class="auth-right-sub">Join Kerala's AI-powered grievance platform</div>
+
+      <form method="POST" action="{{ url_for('register') }}">
+
+        <div class="auth-field">
+          <label>Full Name</label>
+          <div class="auth-input-wrap">
+            <i class="bi bi-person"></i>
+            <input type="text" name="name" class="auth-input" placeholder="As per official records" required autofocus/>
+          </div>
+        </div>
+
+        <div class="auth-field">
+          <label>Email address</label>
+          <div class="auth-input-wrap">
+            <i class="bi bi-envelope"></i>
+            <input type="email" name="email" class="auth-input" placeholder="your@email.com" required/>
+          </div>
+        </div>
+
+        <div class="auth-field">
+          <label>Password</label>
+          <div class="auth-input-wrap">
+            <i class="bi bi-lock"></i>
+            <input type="password" name="password" class="auth-input" placeholder="Minimum 6 characters" required minlength="6"/>
+          </div>
+        </div>
+
+        <div class="auth-row">
+          <div class="auth-field">
+            <label>District</label>
+            <select name="district" class="auth-select">
+              {% for d in ['Thiruvananthapuram','Kollam','Pathanamthitta','Alappuzha','Kottayam','Idukki','Ernakulam','Thrissur','Palakkad','Malappuram','Kozhikode','Wayanad','Kannur','Kasaragod'] %}
+              <option>{{ d }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="auth-field">
+            <label>Role</label>
+            <select name="role" class="auth-select" id="roleSelect">
+              <option value="citizen">Citizen</option>
+              <option value="official">Official</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Department field: only visible for Officials -->
+        <div class="auth-field" id="deptField" style="display:none">
+          <label>Department <span style="color:#dc2626">*</span></label>
+          <div class="auth-input-wrap">
+            <i class="bi bi-building"></i>
+            <select name="department" id="deptSelect" class="auth-input" style="padding-left:2.2rem">
+              <option value="">— Select Department —</option>
+              {% for d in departments %}
+              <option value="{{ d }}">{{ d }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div style="font-size:.68rem;color:var(--g400);margin-top:.25rem">
+            <i class="bi bi-info-circle"></i> Complaints of this category will be routed to you.
+          </div>
+        </div>
+
+        <button type="submit" class="auth-submit">
+          <i class="bi bi-person-plus-fill"></i> Create Account
+        </button>
+      </form>
+
+      <div class="auth-divider"></div>
+      <div class="auth-switch">Already registered? <a href="{{ url_for('login') }}">Sign in →</a></div>
+    </div>
+
+  </div>
+</div>
+<script>
+  const roleSelect = document.getElementById('roleSelect');
+  const deptField  = document.getElementById('deptField');
+  const deptSelect = document.getElementById('deptSelect');
+  function toggleDept() {
+    const isOfficial = roleSelect.value === 'official';
+    deptField.style.display = isOfficial ? 'block' : 'none';
+    deptSelect.required = isOfficial;
+  }
+  roleSelect.addEventListener('change', toggleDept);
+  toggleDept(); // run on page load
+</script>
+{% endblock %}

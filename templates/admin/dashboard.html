@@ -1,0 +1,280 @@
+{% extends 'base.html' %}{% block title %}Admin Dashboard — SmartSLA Kerala{% endblock %}
+{% block extra_css %}<style>
+/* ── Chip cards ── */
+.stat-chip { background:#fff; border:1px solid var(--bdr); border-radius:12px; padding:.9rem 1rem; box-shadow:var(--sh-xs); display:flex; flex-direction:column; align-items:center; text-align:center; gap:.5rem; transition:all .2s; }
+.stat-chip:hover { box-shadow:var(--sh-sm); transform:translateY(-2px); }
+.stat-chip-ic { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:.9rem; flex-shrink:0; }
+.stat-chip-val { font-size:1.1rem; font-weight:800; color:var(--g900); line-height:1; }
+.stat-chip-lbl { font-size:.58rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--g400); }
+.chart-wrap { position:relative; height:280px; width:100%; }
+.chart-nodata { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5rem; color:var(--g300); font-size:.8rem; font-weight:500; }
+
+/* ── Audit ── */
+.audit-row { display:flex; align-items:flex-start; gap:.75rem; padding:.7rem 0; border-bottom:1px solid var(--g100); }
+.audit-row:last-child { border-bottom:none; }
+.audit-ic { width:30px; height:30px; border-radius:8px; background:var(--pri-l); color:var(--pri); display:flex; align-items:center; justify-content:center; font-size:.7rem; flex-shrink:0; }
+
+/* ── Chips grid ── */
+.chips-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: .75rem;
+  margin-bottom: 1.5rem;
+}
+@media(max-width: 900px) { .chips-grid { grid-template-columns: repeat(3, 1fr); } }
+@media(max-width: 540px) { .chips-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+
+  <!-- ── Header ── -->
+  <div class="page-header a1">
+    <div>
+      <div class="section-label" style="color:var(--pri)">Administration</div>
+      <div class="page-title">System Overview</div>
+      <div class="page-subtitle">All departments · Live data</div>
+    </div>
+    <div style="display:flex;gap:.5rem;align-items:center">
+      <a href="{{ url_for('admin_users') }}" class="btn btn-outline btn-sm"><i class="bi bi-people"></i>Users</a>
+      <a href="{{ url_for('analytics') }}"   class="btn btn-outline btn-sm"><i class="bi bi-bar-chart-line"></i>Analytics</a>
+      <span class="badge status-Resolved" style="font-size:.68rem;padding:.28rem .65rem">
+        <span style="width:5px;height:5px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:.25rem;animation:blink 1.4s infinite"></span>Live
+      </span>
+    </div>
+  </div>
+
+  <!-- ── KPI Strip ── -->
+  <div class="grid-5 a2" style="margin-bottom:1.75rem">
+    <div class="kpi kpi-top kpi-blue">
+      <div class="kpi-ic kpi-ic-blue"><i class="bi bi-collection-fill"></i></div>
+      <div class="kpi-n" data-cu="{{ stats.total }}">{{ stats.total }}</div>
+      <div class="kpi-l">Total Complaints</div>
+    </div>
+    <div class="kpi kpi-top kpi-amber">
+      <div class="kpi-ic kpi-ic-amber"><i class="bi bi-hourglass-split"></i></div>
+      <div class="kpi-n" data-cu="{{ stats.pending }}">{{ stats.pending }}</div>
+      <div class="kpi-l">Pending</div>
+    </div>
+    <div class="kpi kpi-top kpi-green">
+      <div class="kpi-ic kpi-ic-green"><i class="bi bi-check-circle-fill"></i></div>
+      <div class="kpi-n" data-cu="{{ stats.resolved_all }}">{{ stats.resolved_all }}</div>
+      <div class="kpi-l">Resolved</div>
+    </div>
+    <div class="kpi kpi-top kpi-red">
+      <div class="kpi-ic kpi-ic-red"><i class="bi bi-arrow-up-circle-fill"></i></div>
+      <div class="kpi-n" data-cu="{{ stats.escalated }}">{{ stats.escalated }}</div>
+      <div class="kpi-l">Escalated</div>
+    </div>
+    <div class="kpi kpi-top kpi-purple">
+      <div class="kpi-ic kpi-ic-purple"><i class="bi bi-percent"></i></div>
+      <div class="kpi-n" style="font-size:1.3rem">{{ stats.violation_rate }}%</div>
+      <div class="kpi-l">SLA Violation Rate</div>
+    </div>
+  </div>
+
+  <!-- ── Charts Row ── -->
+  <div class="grid-2 a3" style="margin-bottom:1.5rem">
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-ht"><i class="bi bi-pie-chart-fill" style="color:var(--pri)"></i>Status Distribution</span>
+        <span style="font-size:.68rem;color:var(--g400)">{{ stats.total }} total</span>
+      </div>
+      <div class="card-bd">
+        <div class="chart-wrap" id="statusWrap"><canvas id="statusChart"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-ht"><i class="bi bi-bar-chart-fill" style="color:var(--warn)"></i>By Category</span>
+        <span style="font-size:.68rem;color:var(--g400)">Total vs Violated</span>
+      </div>
+      <div class="card-bd">
+        <div class="chart-wrap" id="catWrap"><canvas id="catChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Quick Stats Chips ── -->
+  <div class="chips-grid a3">
+    <div class="stat-chip">
+      <div class="stat-chip-ic" style="background:var(--pri-l);color:var(--pri)"><i class="bi bi-people-fill"></i></div>
+      <div class="stat-chip-val">{{ stats.citizens }}</div>
+      <div class="stat-chip-lbl">Citizens</div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-chip-ic" style="background:#dbeafe;color:#1e40af"><i class="bi bi-briefcase-fill"></i></div>
+      <div class="stat-chip-val">{{ stats.officials }}</div>
+      <div class="stat-chip-lbl">Officials</div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-chip-ic" style="background:var(--err-l);color:var(--err)"><i class="bi bi-shield-exclamation"></i></div>
+      <div class="stat-chip-val">{{ stats.violated }}</div>
+      <div class="stat-chip-lbl">SLA Violated</div>
+    </div>
+    <a href="{{ url_for('admin_users') }}" class="stat-chip" style="text-decoration:none;border-color:#bfdbfe">
+      <div class="stat-chip-ic" style="background:var(--ok-l);color:var(--ok)"><i class="bi bi-person-gear"></i></div>
+      <div style="font-size:.82rem;font-weight:700;color:var(--g800)">Manage Users</div>
+      <div class="stat-chip-lbl" style="color:var(--pri)">View all →</div>
+    </a>
+    <a href="{{ url_for('analytics') }}" class="stat-chip" style="text-decoration:none;border-color:#ede9fe">
+      <div class="stat-chip-ic" style="background:var(--pur-l);color:var(--pur)"><i class="bi bi-bar-chart-line-fill"></i></div>
+      <div style="font-size:.82rem;font-weight:700;color:var(--g800)">ML Analytics</div>
+      <div class="stat-chip-lbl" style="color:var(--pur)">View graphs →</div>
+    </a>
+  </div>
+
+  <!-- ── Bottom Grid: Watchlist + Audit ── -->
+  <div class="grid-2 a4">
+
+    <!-- SLA Watchlist -->
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-ht"><i class="bi bi-exclamation-triangle-fill" style="color:var(--err)"></i>SLA Watchlist</span>
+        <span style="font-size:.68rem;color:var(--g400);font-family:var(--mono)">{{ complaints|length }} cases</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="table">
+          <thead>
+            <tr><th>ID</th><th>Category</th><th>Status</th><th>Risk</th><th>SLA</th></tr>
+          </thead>
+          <tbody>
+            {% for c in complaints[:12] %}
+            <tr>
+              <td>
+                <a href="{{ url_for('complaint_detail', complaint_id=c.complaint_id) }}"
+                   style="font-family:var(--mono);font-size:.7rem;color:var(--pri);font-weight:600;text-decoration:none"
+                   onmouseover="this.style.textDecoration='underline'"
+                   onmouseout="this.style.textDecoration='none'">{{ c.complaint_id }}</a>
+              </td>
+              <td style="font-size:.76rem">{{ c.category }}</td>
+              <td><span class="badge status-{{ c.status.replace(' ','') }}" style="font-size:.6rem">{{ c.status }}</span></td>
+              <td><span class="badge badge-{{ c.sla_risk_label }}" style="font-size:.58rem">{{ c.sla_risk_label }}</span></td>
+              <td>
+                <div class="progress" style="width:52px;margin-bottom:.18rem">
+                  <div class="progress-bar" style="width:{{ [c.progress_pct,100]|min }}%;background:{%if c.sla_violated%}var(--err){%elif c.progress_pct>75%}var(--warn){%else%}var(--pri){%endif%}"></div>
+                </div>
+                <div style="font-size:.58rem;color:var(--g400);font-family:var(--mono)">{%if c.sla_violated%}<span style="color:var(--err)">Over</span>{%elif c.status in('Resolved','Closed')%}Done{%else%}{{ c.days_remaining }}d{%endif%}</div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Audit Log -->
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-ht"><i class="bi bi-journal-text" style="color:var(--pur)"></i>Audit Log</span>
+        <span style="font-size:.68rem;color:var(--g400)">Recent activity</span>
+      </div>
+      {% if audit_logs %}
+      <div style="padding:.25rem 1.15rem .75rem">
+        {% for log in audit_logs %}
+        <div class="audit-row">
+          <div class="audit-ic"><i class="bi bi-activity"></i></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:.76rem;font-weight:600;color:var(--g800)">{{ log['action'] }}</div>
+            <div style="font-size:.68rem;color:var(--g500);margin-top:.05rem">
+              by {{ log['uname'] or 'System' }}{% if log['notes'] %} — <em style="color:var(--g400)">{{ log['notes'][:50] }}</em>{% endif %}
+            </div>
+          </div>
+          <div style="font-family:var(--mono);font-size:.6rem;color:var(--g300);flex-shrink:0;white-space:nowrap">
+            {{ log['timestamp'][:16] if log['timestamp'] else '' }}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state" style="padding:2rem">
+        <div class="empty-state-icon" style="background:var(--pur-l);color:var(--pur);width:44px;height:44px;font-size:.95rem"><i class="bi bi-journal-text"></i></div>
+        <div style="font-size:.84rem;font-weight:600;color:var(--g600);margin-bottom:.2rem">No audit logs yet</div>
+        <div style="font-size:.74rem;color:var(--g400)">Actions will appear here</div>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var CHART_STATUS = {
+  pending:          {{ stats.pending          | default(0) }},
+  in_progress:      {{ stats.in_progress      | default(0) }},
+  resolved:         {{ stats.resolved         | default(0) }},
+  escalated_status: {{ stats.escalated_status | default(0) }},
+  closed:           {{ stats.closed           | default(0) }}
+};
+var CHART_CAT = {{ cat_data | tojson | safe }};
+
+function noData(wrapId, msg) {
+  var w = document.getElementById(wrapId);
+  if (w) w.innerHTML = '<div class="chart-nodata"><i class="bi bi-bar-chart-line" style="font-size:2rem;opacity:.2"></i><span>' + msg + '</span></div>';
+}
+
+function buildCharts() {
+  /* Guard — retry until Chart.js CDN has loaded */
+  if (typeof Chart === 'undefined') {
+    setTimeout(buildCharts, 80);
+    return;
+  }
+
+  /* ── Status Doughnut ── */
+  var sd  = [CHART_STATUS.pending, CHART_STATUS.in_progress, CHART_STATUS.resolved, CHART_STATUS.escalated_status, CHART_STATUS.closed];
+  var sl  = ['Pending','In Progress','Resolved','Escalated','Closed'];
+  var sbg = ['#fef3c7','#dbeafe','#dcfce7','#fee2e2','#f5f3ff'];
+  var sbd = ['#d97706','#3b82f6','#22c55e','#ef4444','#8b5cf6'];
+  var fi  = sd.reduce(function(a,v,i){ if(v>0) a.push(i); return a; }, []);
+
+  if (!fi.length) {
+    noData('statusWrap', 'No complaints yet');
+  } else {
+    var c1 = document.getElementById('statusChart');
+    if (c1) new Chart(c1.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels:   fi.map(function(i){return sl[i];}),
+        datasets: [{ data: fi.map(function(i){return sd[i];}), backgroundColor: fi.map(function(i){return sbg[i];}), borderColor: fi.map(function(i){return sbd[i];}), borderWidth:2, hoverOffset:8 }]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false, cutout:'65%',
+        plugins: {
+          legend:{ position:'bottom', labels:{ padding:14, usePointStyle:true, pointStyle:'circle', font:{size:11,weight:'500'} } },
+          tooltip:{ callbacks:{ label:function(ctx){ var t=ctx.dataset.data.reduce(function(a,b){return a+b;},0); return '  '+ctx.label+': '+ctx.parsed+' ('+(t>0?Math.round(ctx.parsed/t*100):0)+'%)'; } } }
+        },
+        layout:{ padding:8 }
+      }
+    });
+  }
+
+  /* ── Category Bar ── */
+  var cats = Object.keys(CHART_CAT);
+  if (!cats.length) {
+    noData('catWrap', 'No category data yet');
+  } else {
+    var c2 = document.getElementById('catChart');
+    if (c2) new Chart(c2.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: cats,
+        datasets: [
+          { label:'Total',        data:cats.map(function(k){return CHART_CAT[k].total;}),    backgroundColor:'rgba(37,99,235,.15)',  borderColor:'#2563eb', borderWidth:1.5, borderRadius:4, barPercentage:.65, categoryPercentage:.75 },
+          { label:'SLA Violated', data:cats.map(function(k){return CHART_CAT[k].violated;}), backgroundColor:'rgba(220,38,38,.13)',  borderColor:'#dc2626', borderWidth:1.5, borderRadius:4, barPercentage:.65, categoryPercentage:.75 }
+        ]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ position:'top', labels:{ usePointStyle:true, pointStyle:'circle', font:{size:11}, padding:14 } } },
+        scales:{ y:{ grid:{color:'#f1f5f9'}, beginAtZero:true, ticks:{precision:0} }, x:{ grid:{display:false}, ticks:{font:{size:10},maxRotation:30} } }
+      }
+    });
+  }
+}
+
+/* Start immediately — retry loop handles CDN timing */
+buildCharts();
+</script>
+{% endblock %}

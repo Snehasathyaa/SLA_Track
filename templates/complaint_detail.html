@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}{{ complaint.complaint_id }} — SmartSLA Kerala{% endblock %}
+{% block extra_css %}<style>
+.dp{max-width:900px;margin:0 auto}
+.dh{background:var(--white);border:1px solid var(--bdr);border-radius:var(--rxl);overflow:hidden;margin-bottom:1rem}
+.dh-top{padding:1.3rem;border-bottom:1px solid var(--bdr);background:var(--g50)}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.dcell{padding:.75rem 1.1rem;border-bottom:1px solid var(--g100)}
+.dcell:nth-child(odd){border-right:1px solid var(--g100)}
+.dcell:nth-last-child(1),.dcell:nth-last-child(2){border-bottom:none}
+.dcell-l{font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--g400);margin-bottom:.2rem}
+.dcell-v{font-size:.8rem;font-weight:600;color:var(--g800)}
+.desc-b{padding:1.1rem 1.3rem;background:var(--g50);border-top:1px solid var(--bdr);font-size:.82rem;line-height:1.7;color:var(--g700)}
+.timeline{position:relative;padding-left:1.6rem}
+.timeline::before{content:'';position:absolute;left:6px;top:8px;bottom:8px;width:2px;background:var(--g200)}
+.tl-item{position:relative;padding-bottom:1rem}.tl-item:last-child{padding-bottom:0}
+.tl-dot{position:absolute;left:-1.6rem;top:2px;width:14px;height:14px;border-radius:50%;border:2px solid var(--bdr);background:var(--white);z-index:1}
+.tl-dot-a{border-color:var(--pri);background:var(--pri-l)}
+.prog-row{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:1rem}
+@media(max-width:640px){.dgrid{grid-template-columns:1fr}.dcell{border-right:none !important}.prog-row{grid-template-columns:1fr}}
+</style>{% endblock %}
+{% block content %}
+<div class="page-wrap"><div class="dp">
+  <div class="page-header a1">
+    <div>
+      <div class="section-label">Complaint Details</div>
+      <div class="page-title" style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+        <span style="font-family:var(--mono);color:var(--pri)">{{ complaint.complaint_id }}</span>
+        <span class="badge status-{{ complaint.status.replace(' ','') }}">{{ complaint.status }}</span>
+        {% if complaint.escalated %}<span class="badge badge-Critical"><i class="bi bi-arrow-up-circle-fill"></i>Escalated</span>{% endif %}
+      </div>
+    </div>
+    <div style="display:flex;gap:.4rem">
+      {% if session.user_role in ('official','admin') %}<button class="btn btn-primary btn-sm" onclick="document.getElementById('uModal').classList.add('open')"><i class="bi bi-pencil"></i>Update</button>{% endif %}
+      <a href="javascript:history.back()" class="btn btn-outline btn-sm"><i class="bi bi-arrow-left"></i>Back</a>
+    </div>
+  </div>
+  <div class="dh a2">
+    <div class="dh-top">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.875rem">
+        <div>
+          <div style="font-size:1.08rem;font-weight:800;color:var(--g900);letter-spacing:-.02em">{{ complaint.category }}</div>
+          <div style="font-size:.8rem;color:var(--g500);margin-top:.15rem">{{ complaint.department }} · {{ complaint.district }}</div>
+        </div>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="badge badge-{{ complaint.priority }}"><i class="bi bi-flag-fill"></i>{{ complaint.priority }}</span>
+          <span class="badge badge-{{ complaint.sla_risk_label }}"><i class="bi bi-robot"></i>{{ complaint.sla_risk_label }} · {{ complaint.sla_risk_score }}%</span>
+        </div>
+      </div>
+      <div class="prog-row">
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:.3rem"><span style="font-size:.66rem;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.06em">AI Risk Score</span><span style="font-family:var(--mono);font-size:.74rem;font-weight:700;color:{%if complaint.sla_risk_score>=75%}var(--err){%elif complaint.sla_risk_score>=50%}var(--warn){%else%}var(--ok){%endif%}">{{ complaint.sla_risk_score }}%</span></div><div class="progress" style="height:7px"><div class="progress-bar" style="width:{{ complaint.sla_risk_score }}%;background:{%if complaint.sla_risk_score>=75%}var(--err){%elif complaint.sla_risk_score>=50%}var(--warn){%else%}var(--ok){%endif%}"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:.3rem"><span style="font-size:.66rem;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.06em">SLA Progress</span><span style="font-family:var(--mono);font-size:.74rem;font-weight:700;color:{%if complaint.sla_violated%}var(--err){%elif complaint.progress_pct>75%}var(--warn){%else%}var(--pri){%endif%}">{%if complaint.status in ('Resolved','Closed')%}Complete{%elif complaint.sla_violated%}Overdue{%else%}{{ complaint.days_remaining }}d remaining{%endif%}</span></div><div class="progress" style="height:7px"><div class="progress-bar" style="width:{{ [complaint.progress_pct,100]|min }}%;background:{%if complaint.sla_violated%}var(--err){%elif complaint.progress_pct>75%}var(--warn){%else%}var(--pri){%endif%}"></div></div></div>
+      </div>
+    </div>
+    <div class="dgrid">
+      <div class="dcell"><div class="dcell-l">Submitted On</div><div class="dcell-v">{{ complaint.submitted_at.strftime('%d %b %Y, %I:%M %p') if complaint.submitted_at else 'N/A' }}</div></div>
+      <div class="dcell"><div class="dcell-l">SLA Threshold</div><div class="dcell-v">{{ complaint.sla_threshold }} days</div></div>
+      <div class="dcell"><div class="dcell-l">Predicted Resolution</div><div class="dcell-v" style="color:var(--pur)">{{ complaint.predicted_days }} days</div></div>
+      <div class="dcell"><div class="dcell-l">Days Pending</div><div class="dcell-v" style="color:{%if complaint.sla_violated%}var(--err){%else%}var(--g800){%endif%}">{{ complaint.days_pending }} days</div></div>
+      <div class="dcell"><div class="dcell-l">Filed By</div><div class="dcell-v"><i class="bi bi-person" style="color:var(--g400);margin-right:.2rem"></i>{{ user_info['name'] if user_info else 'Unknown' }}{% if user_info %}<span style="font-size:.68rem;color:var(--g400);font-weight:400"> · {{ user_info['district'] }}</span>{% endif %}</div></div>
+      <div class="dcell"><div class="dcell-l">Assigned Officer</div><div class="dcell-v">{% if officer_info %}<i class="bi bi-shield-check" style="color:var(--pri);margin-right:.2rem"></i>{{ officer_info['name'] }}<span style="font-size:.68rem;color:var(--g400);font-weight:400"> · {{ officer_info['department'] }}</span>{% else %}<span style="color:var(--g400)">Not yet assigned</span>{% endif %}</div></div>
+      {% if complaint.escalated %}<div class="dcell"><div class="dcell-l">Escalated On</div><div class="dcell-v" style="color:var(--err)"><i class="bi bi-exclamation-triangle-fill" style="margin-right:.2rem"></i>{{ complaint.escalated_at.strftime('%d %b %Y, %I:%M %p') if complaint.escalated_at else 'N/A' }}</div></div>{% endif %}
+      {% if complaint.status in ('Resolved','Closed') and complaint.resolved_at %}<div class="dcell"><div class="dcell-l">Resolved On</div><div class="dcell-v" style="color:var(--ok)"><i class="bi bi-check-circle-fill" style="margin-right:.2rem"></i>{{ complaint.resolved_at.strftime('%d %b %Y, %I:%M %p') }}</div></div>{% endif %}
+    </div>
+    <div class="desc-b"><div style="font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--g400);margin-bottom:.4rem">Description</div>{{ complaint.description }}</div>
+  </div>
+  {% if complaint.status=='Pending' %}<div style="padding:.8rem 1rem;background:var(--pri-l);border:1px solid #93c5fd;border-radius:var(--rl);font-size:.78rem;color:#1e40af;display:flex;align-items:center;gap:.5rem;margin-bottom:1rem" class="a3"><i class="bi bi-info-circle-fill" style="flex-shrink:0"></i>Awaiting assignment to the relevant department.</div>
+  {% elif complaint.sla_violated %}<div style="padding:.8rem 1rem;background:var(--err-l);border:1px solid #fca5a5;border-radius:var(--rl);font-size:.78rem;color:#991b1b;display:flex;align-items:center;gap:.5rem;margin-bottom:1rem" class="a3"><i class="bi bi-exclamation-triangle-fill" style="flex-shrink:0"></i>SLA deadline breached. Escalated to senior officials.</div>
+  {% elif complaint.status in ('Resolved','Closed') %}<div style="padding:.8rem 1rem;background:var(--ok-l);border:1px solid #86efac;border-radius:var(--rl);font-size:.78rem;color:#166534;display:flex;align-items:center;gap:.5rem;margin-bottom:1rem" class="a3"><i class="bi bi-check-circle-fill" style="flex-shrink:0"></i>This complaint has been resolved.</div>{% endif %}
+  {% if logs %}<div class="card a4"><div class="card-hd"><span class="card-ht"><i class="bi bi-clock-history" style="color:var(--pur)"></i>Activity Timeline</span><span style="font-size:.68rem;color:var(--g400)">{{ logs|length }} events</span></div><div class="card-bd"><div class="timeline">{% for log in logs %}<div class="tl-item"><div class="tl-dot {{ 'tl-dot-a' if loop.first }}"></div><div style="font-size:.8rem;font-weight:600;color:var(--g800)">{{ log['action'] }}</div><div style="font-size:.72rem;color:var(--g500);margin-top:.1rem">by {{ log['uname'] or 'System' }}{% if log['notes'] %}<span style="color:var(--g400)"> — {{ log['notes'] }}</span>{% endif %}</div><div style="font-family:var(--mono);font-size:.62rem;color:var(--g400);margin-top:.15rem">{{ log['timestamp'] }}</div></div>{% endfor %}</div></div></div>{% endif %}
+</div></div>
+{% if session.user_role in ('official','admin') %}
+<div class="modal-overlay" id="uModal"><div class="modal-box"><div class="modal-header"><h5><i class="bi bi-pencil-square" style="color:var(--pri)"></i>Update {{ complaint.complaint_id }}</h5><button class="modal-close" onclick="document.getElementById('uModal').classList.remove('open')">×</button></div><form method="POST" action="{{ url_for('update_complaint', cid=complaint.id) }}"><input type="hidden" name="redirect" value="{{ request.url }}"/><div class="modal-body"><div class="form-group"><label class="form-label">New Status</label><select name="status" class="form-select"><option {{'selected' if complaint.status=='Pending'}}>Pending</option><option {{'selected' if complaint.status=='In Progress'}}>In Progress</option><option {{'selected' if complaint.status=='Escalated'}}>Escalated</option><option {{'selected' if complaint.status=='Resolved'}}>Resolved</option><option {{'selected' if complaint.status=='Closed'}}>Closed</option></select></div><div class="form-group" style="margin-bottom:0"><label class="form-label">Notes <span style="font-weight:400;color:var(--g400)">(optional)</span></label><textarea name="notes" class="form-textarea" rows="3" placeholder="Describe the action taken…"></textarea></div></div><div class="modal-footer"><button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('uModal').classList.remove('open')">Cancel</button><button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check-lg"></i>Save</button></div></form></div></div>
+<script>document.getElementById('uModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open')})</script>
+{% endif %}
+{% endblock %}

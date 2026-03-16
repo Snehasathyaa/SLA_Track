@@ -1,0 +1,364 @@
+{% extends 'base.html' %}{% block title %}About — SmartSLA Kerala{% endblock %}
+{% block extra_css %}<style>
+
+/* ══ KEYFRAMES ══ */
+@keyframes fadeUp   { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+@keyframes countUp  { from { opacity:0; transform:scale(.8); } to { opacity:1; transform:scale(1); } }
+@keyframes lineGrow { from { width:0; } to { width:100%; } }
+@keyframes floatY   { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
+
+/* ══ HERO ══ */
+.ab-hero {
+  background: linear-gradient(160deg, #0f172a 0%, #1e3a8a 50%, #1e1b4b 100%);
+  padding: 5rem 2rem 4rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.ab-hero::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(255,255,255,.04) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+.ab-orb-1 {
+  position: absolute; width: 400px; height: 400px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,.18), transparent 70%);
+  top: -120px; left: -80px; pointer-events: none;
+  animation: floatY 8s ease-in-out infinite;
+}
+.ab-orb-2 {
+  position: absolute; width: 300px; height: 300px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(37,99,235,.15), transparent 70%);
+  bottom: -80px; right: -60px; pointer-events: none;
+  animation: floatY 10s ease-in-out infinite reverse;
+}
+.ab-hero-inner { position: relative; z-index: 2; max-width: 740px; margin: 0 auto; }
+.ab-kicker {
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18);
+  border-radius: 6px; padding: .28rem .8rem;
+  font-size: .64rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: rgba(255,255,255,.85);
+  margin-bottom: 1.5rem;
+  animation: fadeUp .6s ease both;
+}
+.ab-kicker-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: blink 1.5s infinite; }
+.ab-hero h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 900;
+  color: #fff; letter-spacing: -.05em; line-height: 1.1;
+  margin-bottom: .9rem;
+  animation: fadeUp .6s .1s ease both;
+}
+.ab-hero h1 span {
+  background: linear-gradient(130deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.ab-hero p {
+  font-size: .96rem; color: rgba(255,255,255,.65);
+  line-height: 1.85; max-width: 560px; margin: 0 auto 2.5rem;
+  animation: fadeUp .6s .2s ease both;
+}
+/* stat counters in hero */
+.ab-hero-stats {
+  display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;
+  animation: fadeUp .6s .3s ease both;
+}
+.ab-stat { text-align: center; }
+.ab-stat-n {
+  font-size: 2rem; font-weight: 900; color: #fff; letter-spacing: -.04em; line-height: 1;
+  animation: countUp .8s .4s ease both;
+}
+.ab-stat-l { font-size: .68rem; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .1em; margin-top: .25rem; font-weight: 600; }
+.ab-stat-sep { width: 1px; background: rgba(255,255,255,.12); align-self: stretch; }
+
+/* ══ SECTION WRAPPER ══ */
+.ab-wrap { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+
+/* ══ SECTION TITLE ══ */
+.ab-section { padding: 4rem 0; }
+.ab-section-tag {
+  font-size: .62rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--pri);
+  display: flex; align-items: center; gap: .5rem; margin-bottom: .4rem;
+}
+.ab-section-tag::before { content: ''; width: 20px; height: 2px; background: var(--pri); border-radius: 2px; }
+.ab-section-title { font-size: 1.5rem; font-weight: 900; color: var(--g900); letter-spacing: -.04em; margin-bottom: .5rem; }
+.ab-section-sub   { font-size: .88rem; color: var(--g500); line-height: 1.75; max-width: 520px; }
+
+/* ══ MISSION SPLIT ══ */
+.mission-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+}
+.mission-text p { font-size: .9rem; color: var(--g600); line-height: 1.85; margin-bottom: 1rem; }
+.mission-text p:last-child { margin-bottom: 0; }
+.mission-visual {
+  background: linear-gradient(135deg, #eff6ff, #f5f3ff);
+  border: 1px solid var(--bdr); border-radius: 16px;
+  padding: 2rem; display: flex; flex-direction: column; gap: 1rem;
+}
+.mv-row {
+  display: flex; align-items: center; gap: .75rem;
+  background: #fff; border: 1px solid var(--bdr);
+  border-radius: 10px; padding: .8rem 1rem;
+  box-shadow: var(--sh-xs);
+}
+.mv-ic { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: .82rem; flex-shrink: 0; }
+.mv-label { font-size: .8rem; font-weight: 600; color: var(--g800); }
+.mv-sub   { font-size: .68rem; color: var(--g500); margin-top: .08rem; }
+.mv-badge { margin-left: auto; font-size: .6rem; font-weight: 700; padding: .12rem .45rem; border-radius: 20px; white-space: nowrap; }
+
+/* ══ TECH STACK ══ */
+.ab-divider { border: none; border-top: 1px solid var(--bdr); margin: 0; }
+.tech-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 2rem; }
+.tech-card {
+  background: #fff; border: 1px solid var(--bdr); border-radius: 12px;
+  padding: 1.5rem 1.2rem; text-align: center; transition: all .22s;
+  position: relative; overflow: hidden;
+}
+.tech-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--pri), var(--pur));
+  opacity: 0; transition: opacity .22s;
+}
+.tech-card:hover { box-shadow: var(--sh-md); transform: translateY(-4px); }
+.tech-card:hover::before { opacity: 1; }
+.tech-ic { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin: 0 auto .85rem; }
+.tech-name  { font-size: .84rem; font-weight: 700; color: var(--g900); margin-bottom: .25rem; }
+.tech-desc  { font-size: .72rem; color: var(--g500); line-height: 1.55; }
+
+/* ══ HOW ML WORKS ══ */
+.ml-pipeline {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 0; position: relative; margin-top: 2rem;
+}
+.ml-pipeline::before {
+  content: ''; position: absolute;
+  top: 28px; left: 10%; right: 10%; height: 2px;
+  background: linear-gradient(90deg, var(--pri), var(--pur));
+  opacity: .25; z-index: 0;
+}
+.ml-step { text-align: center; padding: 0 .5rem; position: relative; z-index: 1; }
+.ml-step-num {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--pri), var(--pur));
+  color: #fff; font-size: .8rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1rem; box-shadow: 0 4px 14px rgba(37,99,235,.3);
+}
+.ml-step-title { font-size: .78rem; font-weight: 700; color: var(--g900); margin-bottom: .3rem; }
+.ml-step-desc  { font-size: .68rem; color: var(--g500); line-height: 1.55; }
+
+/* ══ FEATURES BENTO ══ */
+.feat-bento { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; margin-top: 2rem; }
+.fb-card {
+  background: #fff; border: 1px solid var(--bdr); border-radius: 12px;
+  padding: 1.4rem; transition: all .2s;
+}
+.fb-card:hover { box-shadow: var(--sh-sm); transform: translateY(-2px); border-color: var(--g200); }
+.fb-card.wide { grid-column: span 2; }
+.fb-ic { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: .95rem; margin-bottom: .8rem; }
+.fb-title { font-size: .84rem; font-weight: 700; color: var(--g900); margin-bottom: .35rem; display: flex; align-items: center; gap: .35rem; }
+.fb-chip  { font-size: .54rem; font-weight: 700; padding: .08rem .38rem; border-radius: 4px; text-transform: uppercase; letter-spacing: .05em; }
+.fb-desc  { font-size: .75rem; color: var(--g500); line-height: 1.65; }
+
+/* ══ CTA BANNER ══ */
+.ab-cta {
+  background: linear-gradient(135deg, #1e3a8a, #2563eb 50%, #4f46e5);
+  border-radius: 16px; padding: 3.5rem 2.5rem; text-align: center;
+  position: relative; overflow: hidden; margin-bottom: 3rem;
+}
+.ab-cta::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.ab-cta h2 { font-size: 1.6rem; font-weight: 900; color: #fff; letter-spacing: -.04em; margin-bottom: .6rem; position: relative; z-index: 1; }
+.ab-cta p  { font-size: .88rem; color: rgba(255,255,255,.7); margin-bottom: 1.75rem; position: relative; z-index: 1; }
+.ab-cta-btns { display: flex; justify-content: center; gap: .75rem; flex-wrap: wrap; position: relative; z-index: 1; }
+.cta-btn-w { background: #fff; color: var(--pri); border: none; border-radius: 8px; padding: .7rem 1.6rem; font-size: .86rem; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: .4rem; transition: all .2s; }
+.cta-btn-w:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.2); }
+.cta-btn-g { background: rgba(255,255,255,.12); color: #fff; border: 1.5px solid rgba(255,255,255,.25); border-radius: 8px; padding: .7rem 1.6rem; font-size: .86rem; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: .4rem; transition: all .2s; }
+.cta-btn-g:hover { background: rgba(255,255,255,.2); transform: translateY(-2px); }
+
+/* ══ RESPONSIVE ══ */
+@media(max-width: 900px) {
+  .mission-grid  { grid-template-columns: 1fr; gap: 2rem; }
+  .tech-grid     { grid-template-columns: repeat(2, 1fr); }
+  .ml-pipeline   { grid-template-columns: repeat(3, 1fr); }
+  .ml-pipeline::before { display: none; }
+  .feat-bento    { grid-template-columns: repeat(2, 1fr); }
+  .fb-card.wide  { grid-column: span 2; }
+  .ab-hero-stats { gap: 2rem; }
+}
+@media(max-width: 580px) {
+  .tech-grid  { grid-template-columns: repeat(2, 1fr); }
+  .ml-pipeline { grid-template-columns: repeat(2, 1fr); }
+  .feat-bento { grid-template-columns: 1fr; }
+  .fb-card.wide { grid-column: span 1; }
+}
+</style>{% endblock %}
+
+{% block content %}
+
+<!-- ══ HERO ══ -->
+<div class="ab-hero">
+  <div class="ab-orb-1"></div>
+  <div class="ab-orb-2"></div>
+  <div class="ab-hero-inner">
+    <div class="ab-kicker">
+      <span class="ab-kicker-dot"></span>
+      About SmartSLA Kerala
+    </div>
+    <h1>AI-Powered Grievance<br>Resolution for <span>Kerala</span></h1>
+    <p>SmartSLA Kerala transforms how citizens interact with government services — using machine learning to predict, route, and resolve complaints before they escalate.</p>
+    <div class="ab-hero-stats">
+      <div class="ab-stat">
+        <div class="ab-stat-n">80%</div>
+        <div class="ab-stat-l">ML Accuracy</div>
+      </div>
+      <div class="ab-stat-sep"></div>
+      <div class="ab-stat">
+        <div class="ab-stat-n">0.88</div>
+        <div class="ab-stat-l">AUC-ROC Score</div>
+      </div>
+      <div class="ab-stat-sep"></div>
+      <div class="ab-stat">
+        <div class="ab-stat-n">11</div>
+        <div class="ab-stat-l">ML Features</div>
+      </div>
+      <div class="ab-stat-sep"></div>
+      <div class="ab-stat">
+        <div class="ab-stat-n">14</div>
+        <div class="ab-stat-l">Kerala Districts</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MISSION ══ -->
+<div style="background:#fff;border-bottom:1px solid var(--bdr)">
+  <div class="ab-wrap">
+    <div class="ab-section">
+      <div class="mission-grid">
+        <div class="mission-text">
+          <div class="ab-section-tag">Our Mission</div>
+          <div class="ab-section-title">Proactive governance, not reactive fire-fighting</div>
+          <div style="height:3px;width:40px;background:linear-gradient(90deg,var(--pri),var(--pur));border-radius:2px;margin:.75rem 0 1.25rem"></div>
+          <p>Kerala's citizens deserve government services that work — not bureaucratic delays and missed deadlines. SmartSLA was built to change that by applying machine learning to the grievance lifecycle.</p>
+          <p>Every complaint submitted is immediately scored by our Random Forest classifier, predicting whether an SLA violation will occur. High-risk cases are auto-escalated before they become problems.</p>
+          <p>The result is a proactive system where officials spend less time triaging and more time resolving — and citizens get real-time transparency into their complaints.</p>
+        </div>
+        <div class="mission-visual">
+          {% for ic, bg, color, lbl, sub, badge_t, badge_bg, badge_c in [
+            ('bi-robot',           '#eff6ff',      '#2563eb', 'Risk Scored',     'Instantly on submission',     'AI',       '#dbeafe','#1d4ed8'),
+            ('bi-arrow-right-circle','#f0fdf4',    '#16a34a', 'Auto-Routed',     'To relevant department',      'Auto',     '#dcfce7','#15803d'),
+            ('bi-bell-fill',       '#fef9c3',      '#d97706', 'Escalated',       'If SLA risk ≥ 75%',           'Smart',    '#fef3c7','#b45309'),
+            ('bi-check-circle-fill','#dcfce7',     '#16a34a', 'Resolved',        'With full audit trail',       'Done',     '#dcfce7','#15803d'),
+          ] %}
+          <div class="mv-row">
+            <div class="mv-ic" style="background:{{ bg }};color:{{ color }}"><i class="bi {{ ic }}"></i></div>
+            <div>
+              <div class="mv-label">{{ lbl }}</div>
+              <div class="mv-sub">{{ sub }}</div>
+            </div>
+            <span class="mv-badge" style="background:{{ badge_bg }};color:{{ badge_c }}">{{ badge_t }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ML PIPELINE ══ -->
+<div style="background:var(--g50);border-bottom:1px solid var(--bdr)">
+  <div class="ab-wrap">
+    <div class="ab-section">
+      <div style="text-align:center;margin-bottom:.25rem">
+        <div class="ab-section-tag" style="justify-content:center">How the AI Works</div>
+        <div class="ab-section-title" style="text-align:center">Random Forest ML Pipeline</div>
+        <p style="font-size:.86rem;color:var(--g500);text-align:center;max-width:480px;margin:.5rem auto 0">Every complaint flows through a 5-stage pipeline that predicts, routes, and escalates automatically</p>
+      </div>
+      <div class="ml-pipeline">
+        {% for n, title, desc, color in [
+          ('01', 'Data Input',      '11 features extracted — district, category, priority, time of day and more', '#2563eb'),
+          ('02', 'Preprocessing',   'Label encoding + feature scaling applied to normalize all inputs',           '#7c3aed'),
+          ('03', 'RF Classifier',   '100 decision trees vote on SLA violation probability (0–100%)',              '#0891b2'),
+          ('04', 'Risk Label',      'Score bucketed into Low / Medium / High / Critical automatically',           '#d97706'),
+          ('05', 'Action Taken',    'Auto-assign to department, escalate if ≥75%, notify officials instantly',   '#16a34a'),
+        ] %}
+        <div class="ml-step">
+          <div class="ml-step-num" style="background:linear-gradient(135deg,{{ color }},{{ color }}cc)">{{ n }}</div>
+          <div class="ml-step-title">{{ title }}</div>
+          <div class="ml-step-desc">{{ desc }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TECH STACK ══ -->
+<div style="background:#fff;border-bottom:1px solid var(--bdr)">
+  <div class="ab-wrap">
+    <div class="ab-section">
+      <div class="ab-section-tag">Built With</div>
+      <div class="ab-section-title">Technology Stack</div>
+      <div class="ab-section-sub">Production-grade tools assembled to handle real-world government scale and reliability requirements.</div>
+      <div class="tech-grid">
+        {% for ic, bg, color, name, desc in [
+          ('bi-filetype-py',     '#eff6ff',  '#1d4ed8', 'Python / Flask',       'Backend framework with Jinja2 templating and SQLite persistence'),
+          ('bi-tree-fill',       '#f0fdf4',  '#15803d', 'Random Forest',        'Scikit-learn ensemble classifier — 100 trees, 80% accuracy, AUC-ROC 0.88'),
+          ('bi-bar-chart-line',  '#fffbeb',  '#b45309', 'Matplotlib / Seaborn', '10 automated evaluation graphs — confusion matrix, ROC, feature importance'),
+          ('bi-layout-text-sidebar','#f5f3ff','#6d28d9','Bootstrap + Custom CSS','Responsive UI with role-specific dashboards for 3 user types'),
+        ] %}
+        <div class="tech-card">
+          <div class="tech-ic" style="background:{{ bg }};color:{{ color }}"><i class="bi {{ ic }}"></i></div>
+          <div class="tech-name">{{ name }}</div>
+          <div class="tech-desc">{{ desc }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FEATURES ══ -->
+<div style="background:var(--g50);border-bottom:1px solid var(--bdr)">
+  <div class="ab-wrap">
+    <div class="ab-section">
+      <div class="ab-section-tag">What SmartSLA Does</div>
+      <div class="ab-section-title">Platform Capabilities</div>
+      <div class="feat-bento">
+        {% for ic, bg, color, title, chip, chip_bg, chip_c, desc, wide in [
+          ('bi-robot',         '#eff6ff',  '#2563eb', 'ML Risk Prediction',    'AI',        '#dbeafe','#1d4ed8', 'Every complaint scored 0–100% for SLA violation risk using Random Forest. No manual triage.',      false),
+          ('bi-bell-fill',     '#f0fdf4',  '#16a34a', 'Auto-Escalation',       'Auto',      '#dcfce7','#15803d', 'Complaints auto-escalate when risk ≥ 75% or SLA is breached. Zero monitoring needed.',             false),
+          ('bi-speedometer2',  '#eff6ff',  '#2563eb', 'Live Dashboards',       'Real-Time', '#dbeafe','#1d4ed8', 'Role-specific views for citizens, officials, and admins with SLA countdown bars.',                  false),
+          ('bi-shield-lock',   '#f5f3ff',  '#7c3aed', 'Full Audit Trails',     'Logged',    '#ede9fe','#6d28d9', 'Every status change permanently recorded with timestamp, officer ID, and notes. Full accountability.',true),
+          ('bi-bar-chart-fill','#fffbeb',  '#d97706', '10 ML Eval Graphs',     'Analytics', '#fef3c7','#b45309', 'Training curves, ROC-AUC, confusion matrix, feature importance — complete model transparency.',      false),
+          ('bi-clock-history', '#fef2f2',  '#dc2626', '24/7 SLA Monitoring',   'Live',      '#fee2e2','#b91c1c', 'Continuous tracking with progress bars. Overdue cases are automatically flagged and escalated.',     false),
+        ] %}
+        <div class="fb-card{{ ' wide' if wide }}">
+          <div class="fb-ic" style="background:{{ bg }};color:{{ color }}"><i class="bi {{ ic }}"></i></div>
+          <div class="fb-title">{{ title }} <span class="fb-chip" style="background:{{ chip_bg }};color:{{ chip_c }}">{{ chip }}</span></div>
+          <div class="fb-desc">{{ desc }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CTA ══ -->
+<div class="ab-wrap" style="padding-top:3rem">
+  <div class="ab-cta">
+    <h2>Ready to experience SmartSLA?</h2>
+    <p>File your first complaint in 60 seconds. AI scores it instantly. Track it in real-time.</p>
+    <div class="ab-cta-btns">
+      <a href="{{ url_for('register') }}" class="cta-btn-w"><i class="bi bi-person-plus-fill"></i>Create Free Account</a>
+      <a href="{{ url_for('track') }}"    class="cta-btn-g"><i class="bi bi-search"></i>Track a Complaint</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
