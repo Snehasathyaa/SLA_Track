@@ -63,6 +63,7 @@ def generate_dataset():
         day_of_week = submission_date.weekday()  # 0=Mon, 6=Sun
 
         sla_threshold = SLA_THRESHOLD[priority]
+        
         multiplier = CATEGORY_MULTIPLIER[category]
 
         # Officer experience (1-20 years), affects resolution speed

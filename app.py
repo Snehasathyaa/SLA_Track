@@ -129,6 +129,7 @@ class C:
         for attr in ('submitted_at','resolved_at','escalated_at'):
             val = getattr(self, attr, None)
             setattr(self, attr, _parse_dt(val))
+            
 
     @property
     def days_pending(self):
