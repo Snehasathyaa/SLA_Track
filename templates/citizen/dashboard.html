@@ -4,7 +4,6 @@
 .cl{font-family:var(--mono);font-size:.73rem;color:var(--pri);font-weight:600;text-decoration:none}.cl:hover{text-decoration:underline}
 </style>{% endblock %}
 {% block content %}
-
 <div class="page-wrap">
   <div class="page-header a1"><div><div class="section-label">Citizen Portal</div><div class="page-title">My Complaints</div><div class="page-subtitle">Track and manage all your grievances</div></div><a href="{{ url_for('submit_complaint') }}" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i>File New</a></div>
   {% set total=complaints|length %}{% set pending=[] %}{% set in_prog=[] %}{% set resolved=[] %}{% set escalated=[] %}
