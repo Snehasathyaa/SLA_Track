@@ -9,7 +9,6 @@ import subprocess
 print("=" * 60)
 
 
-
 print("  SMART SLA PREDICTION SYSTEM — KERALA GOVERNMENT")
 print("=" * 60)
 
