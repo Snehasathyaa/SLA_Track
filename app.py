@@ -128,6 +128,8 @@ class C:
         self.escalated = bool(getattr(self,'escalated',0))
         for attr in ('submitted_at','resolved_at','escalated_at'):
             val = getattr(self, attr, None)
+
+            
             setattr(self, attr, _parse_dt(val))
 
     @property
