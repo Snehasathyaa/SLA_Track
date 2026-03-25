@@ -68,8 +68,7 @@ def generate_dataset():
         # Officer experience (1-20 years), affects resolution speed
         officer_experience = random.randint(1, 20)
         # Workload at time of submission (pending cases)
-        workload = random.randint(5, 80)
-        
+        workload = random.randint(5, 80)        
         # Is it a resubmission?
         resubmission = np.random.choice([0, 1], p=[0.80, 0.20])
         # Complaint text length proxy
