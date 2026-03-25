@@ -29,8 +29,8 @@ if not os.path.exists('models/sla_classifier.pkl'):
 else:
     print("\n[3/4] Models already trained, skipping...")
 
+# 4. Launch Flask------------------------------------
 
-# 4. Launch Flask
 print("\n[4/4] Starting Flask application...")
 print("\n  ➜ Open http://127.0.0.1:5000")
 print("  ➜ Admin: admin@kerala.gov.in / admin123")
