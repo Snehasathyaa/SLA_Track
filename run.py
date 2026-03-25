@@ -10,7 +10,8 @@ print("=" * 60)
 print("  SMART SLA PREDICTION SYSTEM — KERALA GOVERNMENT")
 print("=" * 60)
 
-# 1. Install dependencies
+# 1. Install dependencies------------------------------
+
 print("\n[1/4] Installing dependencies...")
 subprocess.run([sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt',
                 '-q', '--break-system-packages'], check=False)
