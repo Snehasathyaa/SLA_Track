@@ -15,14 +15,16 @@ print("\n[1/4] Installing dependencies...")
 subprocess.run([sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt',
                 '-q', '--break-system-packages'], check=False)
 
-# 2. Generate dataset
+# 2. Generate dataset----------------------------------
+
 if not os.path.exists('dataset/grievance_dataset.csv'):
     print("\n[2/4] Generating dataset...")
     subprocess.run([sys.executable, 'generate_dataset.py'], check=True)
 else:
     print("\n[2/4] Dataset already exists, skipping generation...")
 
-# 3. Train models
+# 3. Train models----------------------------------------
+
 if not os.path.exists('models/sla_classifier.pkl'):
     print("\n[3/4] Training ML models (this may take 1-2 minutes)...")
     subprocess.run([sys.executable, 'train_model.py'], check=True)
