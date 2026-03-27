@@ -347,16 +347,21 @@ def submit_complaint():
 @role_required('official','admin')
 def official_dashboard():
     user = query_db('SELECT * FROM users WHERE id=?',[session['user_id']],one=True)
-    q = 'SELECT * FROM complaints ORDER BY submitted_at DESC' if user['role']=='admin' \
-        else 'SELECT * FROM complaints WHERE assigned_to=? ORDER BY submitted_at DESC'
-    args = [] if user['role']=='admin' else [session['user_id']]
-    complaints = wrap(query_db(q,args))
+    if user['role'] == 'admin':
+        q    = 'SELECT * FROM complaints ORDER BY submitted_at DESC'
+        args = []
+    else:
+        # Show all complaints for the officer's department (department-wide visibility)
+        dept = user['department'] or ''
+        q    = 'SELECT * FROM complaints WHERE department=? ORDER BY submitted_at DESC'
+        args = [dept]
+    complaints = wrap(query_db(q, args))
     now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     for c in complaints:
         if c.status not in ('Resolved','Closed','Escalated') and c.sla_violated and not c.escalated:
             modify_db("UPDATE complaints SET escalated=1,escalated_at=?,status='Escalated' WHERE id=?",[now,c.id])
             log_action(c.id,'Auto-escalated',session['user_id'])
-    complaints = wrap(query_db(q,args))
+    complaints = wrap(query_db(q, args))
     stats = {'total':len(complaints),
              'pending':sum(1 for c in complaints if c.status=='Pending'),
              'in_progress':sum(1 for c in complaints if c.status=='In Progress'),
