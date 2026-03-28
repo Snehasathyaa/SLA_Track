@@ -20,6 +20,7 @@
         <div class="form-group"><label class="form-label">District <span style="color:var(--err)">*</span></label><select name="district" id="dist" class="form-select">{% for d in districts %}<option>{{ d }}</option>{% endfor %}</select></div>
         <div class="form-group"><label class="form-label">Resubmission?</label><select name="resubmission" class="form-select"><option value="no">No — New</option><option value="yes">Yes — Previously Filed</option></select></div>
       </div>
+      
       <div class="form-group"><label class="form-label">Description <span style="color:var(--err)">*</span><span id="cc" style="font-weight:400;font-family:var(--mono);color:var(--g400);font-size:.66rem;margin-left:.4rem">0 chars</span></label><textarea name="description" id="desc" class="form-textarea" rows="5" placeholder="Describe your grievance — include location, date, and what needs resolving…" required></textarea></div>
       <div class="pred-box" id="pb">
         <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.7rem">
