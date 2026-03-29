@@ -215,6 +215,8 @@ def plot_learning_curves(rf_clf, X, y_cls):
     val_mean   = val_scores.mean(axis=1)
     val_std    = val_scores.std(axis=1)
 
+
+
     # Compute "loss" as 1 - accuracy
     train_loss = 1 - train_mean
     val_loss   = 1 - val_mean
