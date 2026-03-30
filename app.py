@@ -12,6 +12,8 @@ import os
 import json
 import random
 
+
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'kerala-sla-secret-2024'
 DATABASE = 'sla_system.db'
