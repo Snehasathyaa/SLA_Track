@@ -33,7 +33,9 @@ plt.rcParams.update({
     'figure.dpi': 120,
     'savefig.bbox': 'tight',
     'savefig.facecolor': '#0f172a'
+    
 })
+
 
 COLORS = {
     'primary': '#3b82f6',
